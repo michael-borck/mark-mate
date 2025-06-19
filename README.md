@@ -27,11 +27,11 @@ mark-mate scan processed_submissions/ --output github_urls.txt
 # Extract content with analysis
 mark-mate extract processed_submissions/ --github-urls github_urls.txt --output extracted.json
 
-# Grade submissions (basic mode)
+# Grade submissions (uses auto-configuration)
 mark-mate grade extracted.json assignment_spec.txt --output results.json
 
-# Enhanced multi-run grading with all providers
-mark-mate grade extracted.json assignment_spec.txt --enhanced --runs 3 --providers all
+# Use custom grading configuration
+mark-mate grade extracted.json assignment_spec.txt --config grading_config.yaml
 ```
 
 ### API Keys Setup
@@ -155,10 +155,7 @@ Options:
   --rubric TEXT         Separate rubric file
   --max-students INT    Limit number of students
   --dry-run             Preview grading without API calls
-  --providers TEXT      LLM providers: claude, openai, gemini, all (default: all)
-  --enhanced            Use enhanced multi-run grading system
-  --runs INT            Number of runs per grader (with --enhanced, default: 1)
-  --config TEXT         Path to YAML grading configuration file
+  --config TEXT         Path to YAML grading configuration file (optional - uses defaults if not provided)
 ```
 
 ## 🐍 Python API
@@ -167,7 +164,7 @@ Options:
 
 ```python
 from mark_mate import (
-    GradingSystem, EnhancedGradingSystem, LLMProvider,
+    EnhancedGradingSystem, LLMProvider,
     AssignmentProcessor, ContentAnalyzer, GradingConfigManager
 )
 
@@ -180,19 +177,18 @@ result = processor.process_submission(
     github_url="https://github.com/user/repo"
 )
 
-# Enhanced multi-run grading with configuration
-enhanced_grader = EnhancedGradingSystem("grading_config.yaml")
-enhanced_result = enhanced_grader.grade_submission(
+# Grading with custom configuration
+grader = EnhancedGradingSystem("grading_config.yaml")
+grade_result = grader.grade_submission(
     student_data=result,
     assignment_spec="Assignment requirements..."
 )
 
-# Legacy dual-LLM grading
-grader = GradingSystem()
-grade_result = grader.grade_submission(
+# Grading with auto-configuration (no config file)
+auto_grader = EnhancedGradingSystem()  # Uses defaults based on available API keys
+auto_result = auto_grader.grade_submission(
     student_data=result,
-    assignment_spec="Assignment requirements...",
-    providers=["claude", "openai", "gemini"]
+    assignment_spec="Assignment requirements..."
 )
 
 # Direct LLM provider usage
@@ -202,6 +198,11 @@ llm_result = llm_provider.grade_submission(
     model="gemini-1.5-pro", 
     prompt="Grade this submission..."
 )
+
+# Generate configuration programmatically
+config_manager = GradingConfigManager()
+config = config_manager.load_config()  # Load defaults
+config.save_default_config("my_config.yaml")
 
 # Analyze content
 analyzer = ContentAnalyzer()
@@ -248,16 +249,42 @@ mark-mate extract processed_submissions/  # Auto-detects 18+ encodings
 mark-mate grade extracted_content.json assignment.txt
 ```
 
-### Enhanced Multi-Run Grading
+### Advanced Grading Workflows
 ```bash
-# Use enhanced grading with statistical averaging
-mark-mate grade extracted_content.json assignment.txt --enhanced --runs 3
+# Auto-configuration based on available API keys
+mark-mate grade extracted_content.json assignment.txt
 
-# All providers with custom configuration
+# Custom configuration with multiple providers and runs
 mark-mate grade extracted_content.json assignment.txt --config grading_config.yaml
 
-# Single provider with multiple runs
-mark-mate grade extracted_content.json assignment.txt --enhanced --runs 5 --providers claude
+# Generate configuration templates
+mark-mate generate-config --template minimal --output simple_config.yaml
+mark-mate generate-config --template cost-optimized --output cheap_config.yaml
+```
+
+## ⚙️ Configuration Management
+
+### Automatic Configuration
+MarkMate automatically creates optimal configurations based on your available API keys:
+- **Single Provider**: Uses 3 runs for statistical reliability
+- **Multiple Providers**: Uses 1 run each with weighted averaging
+- **Cost Optimization**: Chooses appropriate models and limits
+
+### Configuration Templates
+Generate ready-to-use configurations:
+
+```bash
+# Full-featured with all providers
+mark-mate generate-config --template full
+
+# Minimal single-provider setup  
+mark-mate generate-config --template minimal
+
+# Cost-optimized for budget constraints
+mark-mate generate-config --template cost-optimized
+
+# Single provider focus
+mark-mate generate-config --template single-provider --provider anthropic
 ```
 
 ## 🎯 Enhanced Grading System

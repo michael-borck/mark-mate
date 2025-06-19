@@ -2,7 +2,7 @@
 """
 MarkMate Grade Command
 
-Automated grading using multiple LLM providers with comprehensive analysis integration.
+Simplified grading using the enhanced multi-provider system with YAML configuration.
 """
 
 import argparse
@@ -21,7 +21,7 @@ def add_parser(subparsers) -> argparse.ArgumentParser:
     parser = subparsers.add_parser(
         "grade",
         help="Grade student submissions using AI",
-        description="Automated grading using multiple LLM providers with comprehensive analysis"
+        description="AI-powered grading with multi-provider support and statistical aggregation"
     )
     
     parser.add_argument(
@@ -58,32 +58,101 @@ def add_parser(subparsers) -> argparse.ArgumentParser:
     )
     
     parser.add_argument(
-        "--providers",
-        nargs="+",
-        choices=["claude", "openai", "gemini", "all"],
-        default=["all"],
-        help="LLM providers to use for grading (default: all available)"
-    )
-    
-    parser.add_argument(
         "--config",
-        help="Path to YAML grading configuration file"
-    )
-    
-    parser.add_argument(
-        "--enhanced",
-        action="store_true",
-        help="Use enhanced multi-run grading system with statistical aggregation"
-    )
-    
-    parser.add_argument(
-        "--runs",
-        type=int,
-        default=1,
-        help="Number of runs per grader (only with --enhanced, default: 1)"
+        help="Path to YAML grading configuration file (optional - uses defaults if not provided)"
     )
     
     return parser
+
+
+def check_available_providers():
+    """
+    Check which LLM providers have API keys available.
+    
+    Returns:
+        List of available provider names
+    """
+    available = []
+    
+    if os.getenv("ANTHROPIC_API_KEY"):
+        available.append("anthropic")
+    else:
+        logger.info("ANTHROPIC_API_KEY not found - Claude grading will be disabled")
+    
+    if os.getenv("OPENAI_API_KEY"):
+        available.append("openai")
+    else:
+        logger.info("OPENAI_API_KEY not found - OpenAI grading will be disabled")
+    
+    if os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+        available.append("gemini")
+    else:
+        logger.info("GEMINI_API_KEY or GOOGLE_API_KEY not found - Gemini grading will be disabled")
+    
+    return available
+
+
+def create_default_config(available_providers):
+    """
+    Create a default grading configuration based on available providers.
+    
+    Args:
+        available_providers: List of available provider names
+        
+    Returns:
+        Dictionary containing default configuration
+    """
+    if not available_providers:
+        raise ValueError("No API keys available for any LLM provider")
+    
+    graders = []
+    
+    # Add graders based on available providers
+    if "anthropic" in available_providers:
+        graders.append({
+            'name': 'claude-sonnet',
+            'provider': 'anthropic',
+            'model': 'claude-3-5-sonnet',
+            'weight': 2.0,
+            'primary_feedback': True,
+            'rate_limit': 50
+        })
+    
+    if "openai" in available_providers:
+        graders.append({
+            'name': 'gpt4o-mini',
+            'provider': 'openai',
+            'model': 'gpt-4o-mini',
+            'weight': 1.0,
+            'rate_limit': 100
+        })
+    
+    if "gemini" in available_providers:
+        graders.append({
+            'name': 'gemini-pro',
+            'provider': 'gemini',
+            'model': 'gemini-1.5-pro',
+            'weight': 1.0,
+            'rate_limit': 60
+        })
+    
+    # Determine runs based on number of graders
+    runs_per_grader = 3 if len(graders) == 1 else 1
+    
+    return {
+        'grading': {
+            'runs_per_grader': runs_per_grader,
+            'averaging_method': 'weighted_mean' if len(graders) > 1 else 'mean',
+            'parallel_execution': True
+        },
+        'graders': graders,
+        'execution': {
+            'max_cost_per_student': 0.50,
+            'timeout_per_run': 60,
+            'retry_attempts': 3,
+            'show_progress': True
+        }
+    }
 
 
 def load_extracted_content(content_file):
@@ -133,74 +202,9 @@ def load_assignment_spec(spec_file):
         raise
 
 
-def check_api_keys(providers):
+def grade_submission(student_data, assignment_spec, grading_system, rubric=None):
     """
-    Check if required API keys are available.
-    
-    Args:
-        providers: List of providers to check
-        
-    Returns:
-        Dictionary indicating which providers are available
-    """
-    available = {}
-    
-    if "claude" in providers or "all" in providers:
-        available["claude"] = bool(os.getenv("ANTHROPIC_API_KEY"))
-        if not available["claude"]:
-            logger.warning("ANTHROPIC_API_KEY not found - Claude grading will be disabled")
-    
-    if "openai" in providers or "all" in providers:
-        available["openai"] = bool(os.getenv("OPENAI_API_KEY"))
-        if not available["openai"]:
-            logger.warning("OPENAI_API_KEY not found - OpenAI grading will be disabled")
-    
-    if "gemini" in providers or "all" in providers:
-        available["gemini"] = bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
-        if not available["gemini"]:
-            logger.warning("GEMINI_API_KEY or GOOGLE_API_KEY not found - Gemini grading will be disabled")
-    
-    return available
-
-
-def grade_submission_legacy(student_data, assignment_spec, providers, rubric=None):
-    """
-    Grade a single student submission using legacy grading system.
-    
-    Args:
-        student_data: Extracted content for the student
-        assignment_spec: Assignment specification/rubric
-        providers: List of providers to use
-        rubric: Optional separate rubric
-        
-    Returns:
-        Dictionary containing grading results
-    """
-    from ..core.grader import GradingSystem
-    
-    try:
-        grader = GradingSystem()
-        result = grader.grade_submission(
-            student_data,
-            assignment_spec,
-            providers=providers,
-            rubric=rubric
-        )
-        
-        return result
-        
-    except Exception as e:
-        logger.error(f"Error grading student {student_data.get('student_id', 'unknown')}: {e}")
-        return {
-            "error": str(e),
-            "graded": False,
-            "timestamp": datetime.now().isoformat()
-        }
-
-
-def grade_submission_enhanced(student_data, assignment_spec, grading_system, rubric=None):
-    """
-    Grade a single student submission using enhanced grading system.
+    Grade a single student submission.
     
     Args:
         student_data: Extracted content for the student
@@ -237,7 +241,7 @@ def main(args) -> int:
     rubric_file = args.rubric
     max_students = args.max_students
     dry_run = args.dry_run
-    providers = args.providers
+    config_file = args.config
     
     logger.info(f"Grading extracted content from: {content_file}")
     logger.info(f"Assignment specification: {spec_file}")
@@ -246,81 +250,53 @@ def main(args) -> int:
     if dry_run:
         logger.info("DRY RUN MODE - No API calls will be made")
     
-    # Normalize providers list
-    if "all" in providers:
-        providers = ["claude", "openai", "gemini"]
-    
-    logger.info(f"Using providers: {', '.join(providers)}")
-    
-    # Determine grading mode
-    enhanced_mode = args.enhanced or args.config
-    if enhanced_mode:
-        logger.info("Using Enhanced Multi-Run Grading System")
-        if args.runs > 1:
-            logger.info(f"Configured for {args.runs} runs per grader")
-    else:
-        logger.info("Using Legacy Single-Run Grading System")
-    
     # Initialize grading system
-    grading_system = None
-    if enhanced_mode:
-        try:
-            from ..core.enhanced_grader import EnhancedGradingSystem
-            
-            # Create or modify config if using simple options
-            config_path = args.config
-            if not config_path and (args.runs > 1 or enhanced_mode):
-                # Create temporary config
-                from ..config.grading_config import GradingConfigManager
-                config_manager = GradingConfigManager()
-                temp_config = config_manager.DEFAULT_CONFIG.copy()
-                temp_config['grading']['runs_per_grader'] = args.runs
-                
-                # Filter graders based on available providers
-                available_graders = []
-                for grader in temp_config['graders']:
-                    if grader['provider'] in providers:
-                        available_graders.append(grader)
-                temp_config['graders'] = available_graders
-                
-                # Add Gemini if requested
-                if 'gemini' in providers:
-                    temp_config['graders'].append({
-                        'name': 'gemini-pro',
-                        'provider': 'gemini',
-                        'model': 'gemini-1.5-pro',
-                        'weight': 1.0,
-                        'rate_limit': 60
-                    })
-                
-                # Save temp config
-                import tempfile
-                import yaml
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-                    yaml.dump(temp_config, f)
-                    config_path = f.name
-            
-            grading_system = EnhancedGradingSystem(config_path)
-            logger.info(f"Initialized enhanced grading with {len(grading_system.config.graders)} graders")
-            
-        except Exception as e:
-            logger.error(f"Failed to initialize enhanced grading system: {e}")
-            logger.info("Falling back to legacy grading system")
-            enhanced_mode = False
-    
-    # Check API keys for legacy mode or if enhanced mode failed
-    if not enhanced_mode and not dry_run:
-        available_providers = check_api_keys(providers)
-        active_providers = [p for p, available in available_providers.items() if available]
+    try:
+        from ..core.enhanced_grader import EnhancedGradingSystem
         
-        if not active_providers:
-            logger.error("No API keys available for any selected providers")
-            return 1
+        if config_file:
+            logger.info(f"Using configuration file: {config_file}")
+            grading_system = EnhancedGradingSystem(config_file)
+        else:
+            logger.info("No configuration file provided, creating default configuration")
+            
+            # Check available providers
+            available_providers = check_available_providers()
+            if not available_providers:
+                logger.error("No API keys available for any LLM provider")
+                logger.error("Please set at least one of: ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY")
+                return 1
+            
+            logger.info(f"Available providers: {', '.join(available_providers)}")
+            
+            # Create default config
+            default_config = create_default_config(available_providers)
+            
+            # Save temporary config file
+            import tempfile
+            import yaml
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+                yaml.dump(default_config, f, default_flow_style=False, indent=2)
+                temp_config_path = f.name
+            
+            logger.info(f"Created default configuration with {len(default_config['graders'])} graders")
+            grading_system = EnhancedGradingSystem(temp_config_path)
+            
+            # Clean up temp file
+            os.unlink(temp_config_path)
         
-        if len(active_providers) < len(providers):
-            logger.warning(f"Only {len(active_providers)} of {len(providers)} providers available")
+        logger.info(f"Initialized grading system with {len(grading_system.config.graders)} graders")
         
-        providers = active_providers
+        # Show grader details
+        for grader in grading_system.config.graders:
+            logger.info(f"  - {grader.name} ({grader.provider}/{grader.model}, weight: {grader.weight})")
+        
+        logger.info(f"Runs per grader: {grading_system.config.runs_per_grader}")
+        logger.info(f"Averaging method: {grading_system.config.averaging_method}")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize grading system: {e}")
+        return 1
     
     # Load content and assignment spec
     try:
@@ -346,10 +322,7 @@ def main(args) -> int:
         logger.info("DRY RUN - Would grade the following students:")
         for student_id in sorted(students.keys()):
             logger.info(f"  {student_id}")
-        if enhanced_mode:
-            logger.info(f"Enhanced mode - using {len(grading_system.config.graders)} configured graders")
-        else:
-            logger.info(f"Legacy mode - using providers: {', '.join(providers)}")
+        logger.info(f"Using {len(grading_system.config.graders)} graders with {grading_system.config.runs_per_grader} runs each")
         return 0
     
     # Grade each student
@@ -357,41 +330,29 @@ def main(args) -> int:
         "grading_session": {
             "timestamp": datetime.now().isoformat(),
             "total_students": len(students),
-            "grading_mode": "enhanced" if enhanced_mode else "legacy",
             "assignment_spec_file": spec_file,
             "rubric_file": rubric_file,
-            "source_content_file": content_file
+            "source_content_file": content_file,
+            "config": {
+                "graders": [g.name for g in grading_system.config.graders],
+                "runs_per_grader": grading_system.config.runs_per_grader,
+                "averaging_method": grading_system.config.averaging_method,
+                "config_file": config_file
+            }
         },
         "results": {}
     }
-    
-    if enhanced_mode:
-        grading_results["grading_session"]["config"] = {
-            "graders": [g.name for g in grading_system.config.graders],
-            "runs_per_grader": grading_system.config.runs_per_grader,
-            "averaging_method": grading_system.config.averaging_method
-        }
-    else:
-        grading_results["grading_session"]["providers"] = providers
     
     graded_count = 0
     for student_id, student_data in sorted(students.items()):
         logger.info(f"Grading student {student_id} ({graded_count + 1}/{len(students)})")
         
-        if enhanced_mode:
-            result = grade_submission_enhanced(
-                student_data,
-                assignment_spec,
-                grading_system,
-                rubric=rubric
-            )
-        else:
-            result = grade_submission_legacy(
-                student_data,
-                assignment_spec,
-                providers,
-                rubric=rubric
-            )
+        result = grade_submission(
+            student_data,
+            assignment_spec,
+            grading_system,
+            rubric=rubric
+        )
         
         grading_results["results"][student_id] = result
         graded_count += 1
@@ -410,13 +371,12 @@ def main(args) -> int:
         if successful_grades:
             logger.info(f"Successfully graded: {len(successful_grades)} students")
         
-        # Show enhanced grading statistics if available
-        if enhanced_mode and grading_system:
-            session_summary = grading_system.get_session_summary()
-            logger.info(f"Total API calls: {session_summary['session_stats']['total_api_calls']}")
-            logger.info(f"Total cost: ${session_summary['session_stats']['total_cost']:.4f}")
-            if session_summary['duration_seconds'] > 0:
-                logger.info(f"Processing time: {session_summary['duration_seconds']:.1f} seconds")
+        # Show enhanced grading statistics
+        session_summary = grading_system.get_session_summary()
+        logger.info(f"Total API calls: {session_summary['session_stats']['total_api_calls']}")
+        logger.info(f"Total cost: ${session_summary['session_stats']['total_cost']:.4f}")
+        if session_summary['duration_seconds'] > 0:
+            logger.info(f"Processing time: {session_summary['duration_seconds']:.1f} seconds")
         
         return 0
         

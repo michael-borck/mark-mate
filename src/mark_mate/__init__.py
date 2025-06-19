@@ -11,16 +11,18 @@ __author__ = "MarkMate Development Team"
 __email__ = "dev@markmate.ai"
 
 # Import main classes for library usage
-from .core.grader import GradingSystem
 from .core.enhanced_grader import EnhancedGradingSystem
 from .core.llm_provider import LLMProvider
 from .core.processor import AssignmentProcessor
 from .core.analyzer import ContentAnalyzer
 from .config.grading_config import GradingConfigManager
 
+# Legacy alias for backward compatibility (if needed)
+GradingSystem = EnhancedGradingSystem
+
 __all__ = [
-    "GradingSystem", 
     "EnhancedGradingSystem",
+    "GradingSystem",  # Legacy alias
     "LLMProvider",
     "AssignmentProcessor", 
     "ContentAnalyzer",

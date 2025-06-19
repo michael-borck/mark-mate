@@ -9,7 +9,7 @@ import argparse
 import sys
 from typing import List, Optional
 
-from . import consolidate, extract, scan, grade
+from . import consolidate, extract, scan, grade, generate_config
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -26,20 +26,21 @@ Examples:
   mark-mate extract processed_submissions/ --output results.json
   mark-mate grade results.json rubric.txt --output grades.json
 
-  # Enhanced multi-run grading with all providers
-  mark-mate grade results.json rubric.txt --enhanced --runs 3 --providers all
-  
   # Use custom grading configuration
   mark-mate grade results.json rubric.txt --config grading_config.yaml
   
-  # Single provider grading
-  mark-mate grade results.json rubric.txt --providers gemini
+  # Generate a configuration template
+  mark-mate generate-config --output my_config.yaml
 
-Supported LLM Providers:
-  claude    - Anthropic Claude 3.5 Sonnet (requires ANTHROPIC_API_KEY)
-  openai    - OpenAI GPT-4o/GPT-4o-mini (requires OPENAI_API_KEY)
-  gemini    - Google Gemini Pro (requires GEMINI_API_KEY or GOOGLE_API_KEY)
-  all       - Use all available providers
+API Keys Required:
+  Set at least one of the following environment variables:
+  - ANTHROPIC_API_KEY    (for Claude 3.5 Sonnet)
+  - OPENAI_API_KEY       (for GPT-4o/GPT-4o-mini)  
+  - GEMINI_API_KEY       (for Google Gemini Pro)
+
+Auto-Configuration:
+  When no --config is provided, MarkMate automatically creates an optimal
+  configuration based on your available API keys.
 
 For more help on a specific command:
   mark-mate <command> --help
@@ -63,6 +64,7 @@ For more help on a specific command:
     scan.add_parser(subparsers)
     extract.add_parser(subparsers)
     grade.add_parser(subparsers)
+    generate_config.add_parser(subparsers)
     
     return parser
 
@@ -86,6 +88,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             return extract.main(args)
         elif args.command == "grade":
             return grade.main(args)
+        elif args.command == "generate-config":
+            return generate_config.main(args)
         else:
             print(f"Unknown command: {args.command}", file=sys.stderr)
             return 1
