@@ -1,0 +1,12 @@
+{
+  "total_marks": 90,
+  "criteria": [
+    "Technical Implementation (30 marks): Correct implementation of all technical requirements with proper functionality",
+    "Code Quality and Organization (25 marks): Well-structured, readable code with appropriate commenting and documentation",
+    "User Interface and Design (20 marks): Intuitive user interface with good visual design and user experience",
+    "Testing and Error Handling (10 marks): Comprehensive testing and robust error handling throughout the application",
+    "Professional Standards (5 marks): Adherence to industry standards and best practices"
+  ],
+  "assignment_requirements": "Comprehensive programming project requiring technical implementation, good design, and professional standards",
+  "project_type": "web_application"
+}

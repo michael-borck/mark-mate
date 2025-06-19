@@ -1,0 +1,9 @@
+Programming Assignment Rubric
+Total Marks: 80
+
+Assessment Criteria:
+- Code functionality and correctness (25 marks): Code executes without errors and meets all requirements
+- Code quality and style (20 marks): Clean, readable code following best practices and naming conventions  
+- Documentation and comments (15 marks): Adequate comments, clear variable names, and comprehensive README
+- Error handling and edge cases (10 marks): Proper error handling and consideration of edge cases
+- Innovation and efficiency (10 marks): Creative solutions and optimized performance where appropriate

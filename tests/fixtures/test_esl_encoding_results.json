@@ -1,0 +1,87 @@
+{
+  "999": {
+    "student_id": "999",
+    "documents": {
+      "utf8_file.txt": {
+        "text": "UTF-8 Text File Test\nThis file contains various international characters:\n• English: Hello World\n• Spanish: Hola Mundo (ñ, á, é, í, ó, ú)\n• French: Bonjour le Monde (é, è, à, ç)\n• German: Hallo Welt (ü, ö, ä, ß)\n• Chinese: 你好世界\n• Japanese: こんにちは世界\n• Russian: Привет мир\n• Arabic: مرحبا بالعالم\n\nSpecial characters and symbols:\n© ® ™ € £ ¥ § ¶ † ‡ • … ‰ ′ ″\nMathematical: ∑ ∏ ∂ ∆ ∇ ∞ ∫ √ ≈ ≠ ≤ ≥ ± ∓\n\nThis should be readable with UTF-8 encoding.",
+        "file_info": {
+          "filename": "utf8_file.txt",
+          "size": 568,
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.txt": {
+        "text": "Test ESL submission with mixed encodings\n",
+        "file_info": {
+          "filename": "README.txt",
+          "size": 41,
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "cp1252_file.txt": {
+        "text": "CP1252 Test File\nThis file contains Windows-1252 characters:\nFrench: café, résumé, naïve\nSpanish: niño, año, señor  \nGerman: größer, weiß\nEnglish quotes: \"Hello\" 'World'\nDashes: – — \nCurrency: € £ ¢\nTrademark: © ® ™\n\nThis file is encoded in CP1252 (Windows-1252).",
+        "file_info": {
+          "filename": "cp1252_file.txt",
+          "size": 263,
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "latin1_file.txt": {
+        "text": "Latin-1 Test File\nThis file contains Western European characters:\nFrench: café, résumé, naïve\nSpanish: niño, año, señor  \nGerman: größer, weiß\nPortuguese: João, coração, ação\nItalian: perché, così, più\n\nSpecial characters: àáâãäåæçèéêëìíîïñòóôõöøùúûüý\nThis file is encoded in Latin-1 (ISO-8859-1).",
+        "file_info": {
+          "filename": "latin1_file.txt",
+          "size": 297,
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "utf8_file.txt",
+        "size": 568,
+        "extension": ".txt"
+      },
+      {
+        "filename": "README.txt",
+        "size": 41,
+        "extension": ".txt"
+      },
+      {
+        "filename": "cp1252_file.txt",
+        "size": 263,
+        "extension": ".txt"
+      },
+      {
+        "filename": "latin1_file.txt",
+        "size": 297,
+        "extension": ".txt"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": [],
+    "content_analysis": {},
+    "submission_metadata": {
+      "total_files": 4,
+      "file_categories": {
+        "document": 4
+      },
+      "detected_projects": [],
+      "primary_type": "document",
+      "processing_strategy": {
+        "analysis_depth": "standard",
+        "focus_areas": [
+          "content_extraction",
+          "structure_analysis"
+        ],
+        "recommended_tools": [
+          "document_processors"
+        ]
+      }
+    }
+  }
+}

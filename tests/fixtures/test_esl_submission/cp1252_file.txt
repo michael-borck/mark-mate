@@ -1,0 +1,11 @@
+CP1252 Test File
+This file contains Windows-1252 characters:
+French: café, résumé, naïve
+Spanish: niño, año, señor  
+German: größer, weiß
+English quotes: "Hello" 'World'
+Dashes: – — 
+Currency: € £ ¢
+Trademark: © ® ™
+
+This file is encoded in CP1252 (Windows-1252).

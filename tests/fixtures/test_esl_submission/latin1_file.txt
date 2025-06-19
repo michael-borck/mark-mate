@@ -1,0 +1,10 @@
+Latin-1 Test File
+This file contains Western European characters:
+French: café, résumé, naïve
+Spanish: niño, año, señor  
+German: größer, weiß
+Portuguese: João, coração, ação
+Italian: perché, così, più
+
+Special characters: àáâãäåæçèéêëìíîïñòóôõöøùúûüı
+This file is encoded in Latin-1 (ISO-8859-1).

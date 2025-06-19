@@ -1,0 +1,16 @@
+UTF-8 Text File Test
+This file contains various international characters:
+• English: Hello World
+• Spanish: Hola Mundo (ñ, á, é, í, ó, ú)
+• French: Bonjour le Monde (é, è, à, ç)
+• German: Hallo Welt (ü, ö, ä, ß)
+• Chinese: 你好世界
+• Japanese: こんにちは世界
+• Russian: Привет мир
+• Arabic: مرحبا بالعالم
+
+Special characters and symbols:
+© ® ™ € £ ¥ § ¶ † ‡ • … ‰ ′ ″
+Mathematical: ∑ ∏ ∂ ∆ ∇ ∞ ∫ √ ≈ ≠ ≤ ≥ ± ∓
+
+This should be readable with UTF-8 encoding.

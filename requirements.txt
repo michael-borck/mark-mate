@@ -1,0 +1,56 @@
+# Student Assignment Processing and Grading System
+# Requirements for consolidate_assignments.py, extract_content.py, and grade_submissions.py
+
+# Core dependencies
+argparse  # Built-in, included for completeness
+
+# Document processing
+PyPDF2>=3.0.0          # PDF text extraction
+python-docx>=0.8.11     # DOCX document processing
+markdown>=3.4.0         # Markdown processing
+nbconvert>=7.16.0       # Jupyter notebook processing
+
+# Phase 1: Office Documents
+python-pptx>=0.6.21     # PowerPoint presentation processing
+openpyxl>=3.1.0         # Excel file processing
+pandas>=2.0.0           # Data analysis and CSV processing
+
+# Phase 2: Code Analysis
+flake8>=6.0.0           # Python code style checking
+pylint>=3.0.0           # Python code quality analysis
+mypy>=1.5.0             # Python type checking
+
+# Phase 3: Web Validation
+beautifulsoup4>=4.12.0   # HTML parsing and validation
+html5lib>=1.1            # HTML5 parsing and validation
+cssutils>=2.11.0         # CSS parsing and validation
+lxml>=4.9.0              # XML/HTML parsing backend
+requests>=2.31.0         # HTTP client for API calls
+
+# Phase 4: Advanced Analysis (Future)
+# GitPython>=3.1.32      # Git repository analysis
+
+# LLM API clients
+anthropic>=0.34.0       # Claude API client (updated for latest models)
+openai>=1.84.0          # OpenAI API client (updated for GPT-4o)
+
+# Optional: Enhanced text processing
+# beautifulsoup4>=4.12.0  # HTML parsing (if needed for web content)
+# python-magic>=0.4.27    # File type detection (alternative to extension-based)
+
+# Development and testing (optional)
+# pytest>=7.0.0          # Testing framework
+# black>=23.0.0          # Code formatting
+# flake8>=6.0.0          # Linting
+
+# Installation notes:
+# Basic functionality (without PDF/DOCX extraction):
+# pip install anthropic openai markdown
+#
+# Full functionality:
+# pip install -r requirements.txt
+#
+# If you get "externally-managed-environment" error:
+# python3 -m venv venv
+# source venv/bin/activate
+# pip install -r requirements.txt

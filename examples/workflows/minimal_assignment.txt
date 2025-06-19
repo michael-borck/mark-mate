@@ -1,0 +1,10 @@
+Simple Programming Assignment
+
+Please submit your Python code for the calculator project.
+
+Requirements:
+- Basic arithmetic operations
+- Error handling
+- Documentation
+
+This assignment is worth 100 points.

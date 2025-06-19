@@ -1,0 +1,1934 @@
+{
+  "373": {
+    "student_id": "373",
+    "documents": {
+      "373_1.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "373_1.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "373.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "373.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "373.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "373.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "373.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "373.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "bakery.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "bakery.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "section 3 final exam about how i use ai.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "section 3 final exam about how i use ai.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "debugging.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "debugging.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "373_1.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "373.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "373.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "373.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "373.png",
+        "size": "unknown",
+        "extension": ".png"
+      },
+      {
+        "filename": "bakery.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "section 3 final exam about how i use ai.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "Screenshot 2025-06-11 143126.png",
+        "size": "unknown",
+        "extension": ".png"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "debugging.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "385": {
+    "student_id": "385",
+    "documents": {
+      "385.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "385.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "385.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "385.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "385.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "385.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "385.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "385.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "final exam AI conversation.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "final exam AI conversation.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "testing result.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing result.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "final_exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "final_exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "385.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "385.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "385.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "385.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "final exam AI conversation.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "testing result.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "final_exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "395": {
+    "student_id": "395",
+    "documents": {
+      "395_2.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "395_2.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "395.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "395.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "395.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "395.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "395_3.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "395_3.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "395_1.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "395_1.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "Final_Reflection.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Reflection.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "conversation_log.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "testing_results.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "395_2.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "395.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "395.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "395_3.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "395_1.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "Final_Reflection.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "conversation_log.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "testing_results.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "380": {
+    "student_id": "380",
+    "documents": {
+      "380.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "380.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "380.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "380.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "380.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "380.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "380_3.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "380_3.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "380_2.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "380_2.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "380_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "380_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "Reflection.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "Reflection.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "testing_results.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "Related to Processing bakery orders.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "Related to Processing bakery orders.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Iterative Error Identification & Fixes & Basic Robustness.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "Iterative Error Identification & Fixes & Basic Robustness.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "380.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "380.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "380.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "380_3.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "380_2.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "380_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "Reflection.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "testing_results.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "Related to Processing bakery orders.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Iterative Error Identification & Fixes & Basic Robustness.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "386": {
+    "student_id": "386",
+    "documents": {
+      "386.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "386.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "386.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "386.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "386.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "386.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "386_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "386_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "testing_results.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "conversation_log.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "386.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "386.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "386.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "386_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "testing_results.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "conversation_log.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "403": {
+    "student_id": "403",
+    "documents": {
+      "403.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "403.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "403.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "403.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "403_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "403_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "testing_results.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "conversation_log.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "._conversation_log.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "._conversation_log.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "._testing_results.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "._testing_results.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "._Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "._Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "403.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "403.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "403.jpg",
+        "size": "unknown",
+        "extension": ".jpg"
+      },
+      {
+        "filename": "403_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "Image 11-6-2025 at 15.23.jpg",
+        "size": "unknown",
+        "extension": ".jpg"
+      },
+      {
+        "filename": "testing_results.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "conversation_log.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "._conversation_log.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "._testing_results.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "._Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "._Image 11-6-2025 at 15.23.jpg",
+        "size": "unknown",
+        "extension": ".jpg"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "379": {
+    "student_id": "379",
+    "documents": {
+      "379.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "379.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "379_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "379_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "379.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "379.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "379.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "379.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "conversation_log.txt.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log.txt.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam_ipynbipynb.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam_ipynbipynb.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "testing_results.txt.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.txt.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "379.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "379_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "379.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "379.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "conversation_log.txt.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Final_Exam_ipynbipynb.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "testing_results.txt.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "378": {
+    "student_id": "378",
+    "documents": {
+      "378_1.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "378_1.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "378_2.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "378_2.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "378.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "378.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "378_1.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "378_2.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "378.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "384": {
+    "student_id": "384",
+    "documents": {
+      "384_2.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "384_2.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "384.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "384.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "384_1.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "384_1.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "384_2.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "384_2.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "384_1.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "384_1.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "384.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "384.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "bakery_order_functions.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "bakery_order_functions.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "inventory_ai_analysis.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "inventory_ai_analysis.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "inventory_debugging_report.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "inventory_debugging_report.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "384_2.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "384.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "384_1.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "384_2.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "384_1.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "384.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "bakery_order_functions.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "inventory_ai_analysis.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "inventory_debugging_report.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "376": {
+    "student_id": "376",
+    "documents": {
+      "376.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "376.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "376.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "376.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "Final_exams_Kipkemboi_Dennis.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_exams_Kipkemboi_Dennis.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "376.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "376.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "Final_exams_Kipkemboi_Dennis.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "377": {
+    "student_id": "377",
+    "documents": {
+      "377_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "377_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "377.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "377.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "377.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "377.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "377.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "377.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "testing_results.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testing_results.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "conversation_log.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "377_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "377.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "377.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "377.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "testing_results.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "conversation_log.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "347": {
+    "student_id": "347",
+    "documents": {
+      "347.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "347.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "347.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "347.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "347_1.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "347_1.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "In_class_test_Assessment_3_ipynb.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "In_class_test_Assessment_3_ipynb.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "final_exam_Collins_KIPLAGAT.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "final_exam_Collins_KIPLAGAT.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "347.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "347.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "347_1.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "In_class_test_Assessment_3_ipynb.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "final_exam_Collins_KIPLAGAT.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "381": {
+    "student_id": "381",
+    "documents": {
+      "381_2.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "381_2.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "381.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "381.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "381_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "381_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "381.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "381.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "381.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "381.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "reflection_section3.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "reflection_section3.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "conversation_log2.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log2.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "conversation_log1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversation_log1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "381_2.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "381.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "381_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "381.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "381.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "Final_Exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "reflection_section3.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "conversation_log2.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "conversation_log1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "341": {
+    "student_id": "341",
+    "documents": {
+      "341.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "341.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "341.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "401": {
+    "student_id": "401",
+    "documents": {
+      "401_2.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "401_2.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "401_1.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "401_1.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "401.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "401.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "401.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "401.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "conversatonlog.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "conversatonlog.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "Final_Exam.Section 3.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "Final_Exam.Section 3.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "testresult.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "testresult.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "final_exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "final_exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "401_2.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "401_1.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "401.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "401.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "conversatonlog.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "Final_Exam.Section 3.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "testresult.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "final_exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "346": {
+    "student_id": "346",
+    "documents": {
+      "346_1.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "346_1.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "346.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "346.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "346.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "346.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "SS.docx": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "SS.docx",
+          "size": "unknown",
+          "extension": ".docx"
+        },
+        "extraction_type": "document"
+      },
+      "input.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "input.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "346_1.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "346.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "346.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "SS.docx",
+        "size": "unknown",
+        "extension": ".docx"
+      },
+      {
+        "filename": "input.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "input.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  },
+  "371": {
+    "student_id": "371",
+    "documents": {
+      "371.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "371.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "371.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "371.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "371.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "371.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      },
+      "final_reflection.txt": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "final_reflection.txt",
+          "size": "unknown",
+          "extension": ".txt"
+        },
+        "extraction_type": "document"
+      },
+      "README.md": {
+        "text": "[DRY RUN] Document content would be extracted here",
+        "file_info": {
+          "filename": "README.md",
+          "size": "unknown",
+          "extension": ".md"
+        },
+        "extraction_type": "document"
+      },
+      "Final_exam.ipynb": {
+        "text": "[DRY RUN] Notebook content would be extracted here",
+        "file_info": {
+          "filename": "Final_exam.ipynb",
+          "size": "unknown",
+          "extension": ".ipynb"
+        },
+        "extraction_type": "notebook"
+      }
+    },
+    "files_processed": [
+      {
+        "filename": "371_no_ext",
+        "size": "unknown",
+        "extension": ""
+      },
+      {
+        "filename": "371.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "371.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "371.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      },
+      {
+        "filename": "final_reflection.txt",
+        "size": "unknown",
+        "extension": ".txt"
+      },
+      {
+        "filename": "AI_conversation logs",
+        "size": "unknown",
+        "extension": ""
+      },
+      {
+        "filename": "README.md",
+        "size": "unknown",
+        "extension": ".md"
+      },
+      {
+        "filename": "Final_exam.ipynb",
+        "size": "unknown",
+        "extension": ".ipynb"
+      }
+    ],
+    "errors": [],
+    "wordpress": null,
+    "auto_detected_types": []
+  }
+}
