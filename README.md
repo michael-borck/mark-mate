@@ -5,7 +5,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/mark-mate.svg)](https://pypi.org/project/mark-mate/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive system for processing, consolidating, and grading student submissions with support for multiple content types, GitHub repository analysis, WordPress assignments, and AI-powered assessment using Claude 3.5 Sonnet and GPT-4o.
+A comprehensive system for processing, consolidating, and grading student submissions with support for multiple content types, GitHub repository analysis, WordPress assignments, and AI-powered assessment using **Claude 3.5 Sonnet**, **GPT-4o**, and **Google Gemini** through a unified LiteLLM interface.
 
 ## 🚀 Quick Start
 
@@ -27,8 +27,11 @@ mark-mate scan processed_submissions/ --output github_urls.txt
 # Extract content with analysis
 mark-mate extract processed_submissions/ --github-urls github_urls.txt --output extracted.json
 
-# Grade submissions
+# Grade submissions (basic mode)
 mark-mate grade extracted.json assignment_spec.txt --output results.json
+
+# Enhanced multi-run grading with all providers
+mark-mate grade extracted.json assignment_spec.txt --enhanced --runs 3 --providers all
 ```
 
 ### API Keys Setup
@@ -36,6 +39,7 @@ mark-mate grade extracted.json assignment_spec.txt --output results.json
 ```bash
 export ANTHROPIC_API_KEY="your_anthropic_key"
 export OPENAI_API_KEY="your_openai_key"
+export GEMINI_API_KEY="your_gemini_key"  # or GOOGLE_API_KEY
 ```
 
 ## 📋 System Overview
@@ -62,9 +66,12 @@ MarkMate consists of four main components accessible via CLI or Python API:
 - **Enhanced Encoding**: 18+ encodings for international students
 
 ### 4. **Grade** - AI-powered assessment
-- **Dual-LLM Grading**: Claude 3.5 Sonnet + GPT-4o
+- **Multi-LLM Grading**: Claude 3.5 Sonnet + GPT-4o + Google Gemini via LiteLLM
+- **Enhanced Multi-Run System**: Statistical averaging with configurable runs per grader
+- **Flexible Configuration**: YAML-based grader setup with weights and priorities
+- **Advanced Statistics**: Multiple averaging methods, confidence scoring, variance analysis
+- **Cost Controls**: Budget limits, rate limiting, and usage tracking
 - **Automatic Rubric Extraction**: From assignment specifications
-- **Confidence Scoring**: Based on provider agreement
 - **Comprehensive Feedback**: Incorporating all analysis types
 
 ## 🌟 Key Features
@@ -73,8 +80,37 @@ MarkMate consists of four main components accessible via CLI or Python API:
 - **GitHub Repository Analysis**: Commit history, development patterns, repository quality assessment
 - **Enhanced Encoding Support**: Optimized for ESL students with automatic encoding detection (UTF-8, UTF-16, CP1252, Latin-1, and more)
 - **WordPress Assignment Processing**: Complete backup analysis with theme, plugin, and database evaluation
-- **Dual-LLM Grading**: Claude 3.5 Sonnet + GPT-4o with confidence scoring and mark aggregation
+- **Multi-LLM Grading**: Claude 3.5 Sonnet + GPT-4o + Google Gemini with statistical aggregation and confidence scoring
 - **Mac System File Filtering**: Automatic removal of .DS_Store, resource forks, and __MACOSX directories
+
+## 🔗 LiteLLM Integration
+
+MarkMate leverages [LiteLLM](https://github.com/BerriAI/litellm) for unified access to multiple LLM providers:
+
+**Unified Interface Benefits:**
+- **Consistent API**: Single interface for Claude, OpenAI, and Gemini
+- **Error Handling**: Standardized exceptions across all providers  
+- **Token Tracking**: Unified usage monitoring and cost calculation
+- **Rate Limiting**: Built-in respect for provider-specific limits
+- **Future-Proof**: Easy addition of 100+ supported providers
+
+**Supported Models:**
+```python
+# Anthropic
+"claude-3-5-sonnet", "claude-3-sonnet", "claude-3-haiku"
+
+# OpenAI  
+"gpt-4o", "gpt-4o-mini", "gpt-4", "gpt-3.5-turbo"
+
+# Google Gemini
+"gemini-pro", "gemini-1.5-pro", "gemini-2.0-flash"
+```
+
+**Cost Optimization:**
+- Automatic cost estimation before processing
+- Per-student budget controls with early termination
+- Real-time usage tracking across all providers
+- Intelligent model selection based on cost/quality trade-offs
 
 ## 🖥️ CLI Interface
 
@@ -119,7 +155,10 @@ Options:
   --rubric TEXT         Separate rubric file
   --max-students INT    Limit number of students
   --dry-run             Preview grading without API calls
-  --providers TEXT      LLM providers: claude, openai, both (default: both)
+  --providers TEXT      LLM providers: claude, openai, gemini, all (default: all)
+  --enhanced            Use enhanced multi-run grading system
+  --runs INT            Number of runs per grader (with --enhanced, default: 1)
+  --config TEXT         Path to YAML grading configuration file
 ```
 
 ## 🐍 Python API
@@ -127,7 +166,10 @@ Options:
 ### Library Usage
 
 ```python
-from mark_mate import GradingSystem, AssignmentProcessor, ContentAnalyzer
+from mark_mate import (
+    GradingSystem, EnhancedGradingSystem, LLMProvider,
+    AssignmentProcessor, ContentAnalyzer, GradingConfigManager
+)
 
 # Process submissions
 processor = AssignmentProcessor()
@@ -138,12 +180,27 @@ result = processor.process_submission(
     github_url="https://github.com/user/repo"
 )
 
-# Grade with AI
+# Enhanced multi-run grading with configuration
+enhanced_grader = EnhancedGradingSystem("grading_config.yaml")
+enhanced_result = enhanced_grader.grade_submission(
+    student_data=result,
+    assignment_spec="Assignment requirements..."
+)
+
+# Legacy dual-LLM grading
 grader = GradingSystem()
 grade_result = grader.grade_submission(
     student_data=result,
     assignment_spec="Assignment requirements...",
-    providers=["claude", "openai"]
+    providers=["claude", "openai", "gemini"]
+)
+
+# Direct LLM provider usage
+llm_provider = LLMProvider()
+llm_result = llm_provider.grade_submission(
+    provider="gemini",
+    model="gemini-1.5-pro", 
+    prompt="Grade this submission..."
 )
 
 # Analyze content
@@ -189,6 +246,84 @@ mark-mate grade extracted_content.json wordpress_assignment.txt
 mark-mate consolidate international_submissions/
 mark-mate extract processed_submissions/  # Auto-detects 18+ encodings
 mark-mate grade extracted_content.json assignment.txt
+```
+
+### Enhanced Multi-Run Grading
+```bash
+# Use enhanced grading with statistical averaging
+mark-mate grade extracted_content.json assignment.txt --enhanced --runs 3
+
+# All providers with custom configuration
+mark-mate grade extracted_content.json assignment.txt --config grading_config.yaml
+
+# Single provider with multiple runs
+mark-mate grade extracted_content.json assignment.txt --enhanced --runs 5 --providers claude
+```
+
+## 🎯 Enhanced Grading System
+
+### Multi-Run Statistical Grading
+MarkMate's enhanced grading system provides unprecedented reliability through:
+
+**Statistical Aggregation Methods:**
+- **Mean**: Simple average of all runs
+- **Median**: Middle value for robustness against outliers
+- **Weighted Mean**: Importance-based averaging using grader weights
+- **Trimmed Mean**: Removes highest/lowest values before averaging
+
+**Configuration Example:**
+```yaml
+grading:
+  runs_per_grader: 3
+  averaging_method: "weighted_mean"
+  parallel_execution: true
+
+graders:
+  - name: "claude-sonnet"
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+    weight: 2.0              # Higher importance
+    primary_feedback: true   # Featured feedback
+    
+  - name: "gpt4o"
+    provider: "openai"
+    model: "gpt-4o"
+    weight: 1.5
+    
+  - name: "gemini-pro"
+    provider: "gemini"
+    model: "gemini-1.5-pro"
+    weight: 1.0
+
+execution:
+  max_cost_per_student: 0.75  # Budget control
+  retry_attempts: 3           # Failure handling
+```
+
+**Advanced Features:**
+- **Confidence Scoring**: Based on inter-grader agreement and variance
+- **Cost Controls**: Per-student budget limits and usage tracking
+- **Rate Limiting**: Respects API limits for each provider
+- **Failure Recovery**: Graceful degradation with retry logic
+- **Progress Tracking**: Real-time status for large batches
+
+**Output Example:**
+```json
+{
+  "aggregate": {
+    "mark": 87.3,
+    "feedback": "Excellent implementation with clear documentation...",
+    "confidence": 0.92,
+    "graders_used": 3,
+    "total_runs": 9
+  },
+  "grader_results": {
+    "claude-sonnet": {
+      "aggregated": {"mark": 88.0, "runs_used": 3},
+      "weight": 2.0
+    }
+  }
+}
 ```
 
 ## 🌍 Enhanced Support for International Students
