@@ -20,10 +20,26 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Basic workflow
   mark-mate consolidate submissions/
   mark-mate scan processed_submissions/ --output github_urls.txt
   mark-mate extract processed_submissions/ --output results.json
   mark-mate grade results.json rubric.txt --output grades.json
+
+  # Enhanced multi-run grading with all providers
+  mark-mate grade results.json rubric.txt --enhanced --runs 3 --providers all
+  
+  # Use custom grading configuration
+  mark-mate grade results.json rubric.txt --config grading_config.yaml
+  
+  # Single provider grading
+  mark-mate grade results.json rubric.txt --providers gemini
+
+Supported LLM Providers:
+  claude    - Anthropic Claude 3.5 Sonnet (requires ANTHROPIC_API_KEY)
+  openai    - OpenAI GPT-4o/GPT-4o-mini (requires OPENAI_API_KEY)
+  gemini    - Google Gemini Pro (requires GEMINI_API_KEY or GOOGLE_API_KEY)
+  all       - Use all available providers
 
 For more help on a specific command:
   mark-mate <command> --help

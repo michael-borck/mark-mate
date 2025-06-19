@@ -1,0 +1,29 @@
+# Simple MarkMate Grading Configuration
+# Single run per grader for fast, cost-effective grading
+
+grading:
+  runs_per_grader: 1          # Single run per grader
+  averaging_method: "weighted_mean"
+  parallel_execution: true
+
+graders:
+  # Primary grader - Claude 3.5 Sonnet (best quality)
+  - name: "claude-sonnet"
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+    weight: 2.0              # Higher weight for better model
+    primary_feedback: true   # Use this grader's feedback
+    rate_limit: 50
+
+  # Secondary grader - GPT-4o Mini (fast and economical)
+  - name: "gpt4o-mini"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    weight: 1.0
+    rate_limit: 100
+
+execution:
+  max_cost_per_student: 0.25  # Lower cost limit
+  timeout_per_run: 60
+  retry_attempts: 2
+  show_progress: true

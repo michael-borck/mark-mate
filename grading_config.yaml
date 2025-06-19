@@ -1,0 +1,64 @@
+# MarkMate Enhanced Grading Configuration
+# This file defines the multi-grader system settings
+
+grading:
+  runs_per_grader: 3          # Number of runs per grader (for statistical averaging)
+  averaging_method: "weighted_mean"  # Options: mean, median, weighted_mean, trimmed_mean
+  parallel_execution: true    # Run graders simultaneously (respecting rate limits)
+
+graders:
+  # Primary grader - Claude 3.5 Sonnet (highest quality, primary feedback)
+  - name: "claude-sonnet"
+    provider: "anthropic"
+    model: "claude-3-5-sonnet"
+    weight: 2.0              # Higher importance in weighted averaging
+    primary_feedback: true   # This grader's feedback will be featured prominently
+    rate_limit: 50          # Requests per minute
+    system_prompt: "You are an expert academic grader. Provide detailed, fair, and constructive feedback."
+    temperature: 0.1
+    max_tokens: 2000
+
+  # Secondary grader - GPT-4o (high quality, cost-effective)
+  - name: "gpt4o"
+    provider: "openai"
+    model: "gpt-4o"
+    weight: 1.5              # Medium importance
+    rate_limit: 60
+    system_prompt: "You are an experienced educator providing thorough assessment."
+    temperature: 0.1
+    max_tokens: 2000
+
+  # Tertiary grader - GPT-4o Mini (fast, economical validation)
+  - name: "gpt4o-mini"
+    provider: "openai"
+    model: "gpt-4o-mini"
+    weight: 1.0              # Standard weight
+    rate_limit: 100         # Higher rate limit for cheaper model
+    temperature: 0.1
+    max_tokens: 1500
+
+  # Quaternary grader - Gemini Pro (Google's perspective)
+  - name: "gemini-pro"
+    provider: "gemini"
+    model: "gemini-1.5-pro"
+    weight: 1.0              # Standard weight
+    rate_limit: 60
+    temperature: 0.1
+    max_tokens: 2000
+
+execution:
+  max_cost_per_student: 0.75  # Maximum cost per student (USD)
+  timeout_per_run: 60         # Timeout per individual API call (seconds)
+  retry_attempts: 3           # Number of retries for failed calls
+  show_progress: true         # Show progress bar during processing
+  
+# Statistical settings for quality control
+statistics:
+  confidence_threshold: 0.7   # Minimum confidence for accepting results
+  max_variance_threshold: 0.15  # Maximum variance as fraction of max_mark
+  
+# Privacy and data governance
+privacy:
+  auto_delete_submissions: false  # Automatically delete submission data after grading
+  retention_days: 30             # Days to retain grading data
+  anonymize_logs: true           # Remove student IDs from detailed logs
