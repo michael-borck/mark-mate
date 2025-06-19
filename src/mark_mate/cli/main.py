@@ -7,9 +7,9 @@ Command-line interface for MarkMate: Your AI Teaching Assistant for Assignments 
 
 import argparse
 import sys
-from typing import List, Optional
+from typing import Optional
 
-from . import consolidate, extract, scan, grade, generate_config
+from . import consolidate, extract, generate_config, grade, scan
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -28,14 +28,14 @@ Examples:
 
   # Use custom grading configuration
   mark-mate grade results.json rubric.txt --config grading_config.yaml
-  
+
   # Generate a configuration template
   mark-mate generate-config --output my_config.yaml
 
 API Keys Required:
   Set at least one of the following environment variables:
   - ANTHROPIC_API_KEY    (for Claude 3.5 Sonnet)
-  - OPENAI_API_KEY       (for GPT-4o/GPT-4o-mini)  
+  - OPENAI_API_KEY       (for GPT-4o/GPT-4o-mini)
   - GEMINI_API_KEY       (for Google Gemini Pro)
 
 Auto-Configuration:
@@ -44,40 +44,34 @@ Auto-Configuration:
 
 For more help on a specific command:
   mark-mate <command> --help
-        """
+        """,
     )
-    
-    parser.add_argument(
-        "--version", 
-        action="version", 
-        version="MarkMate 0.1.0"
-    )
-    
+
+    parser.add_argument("--version", action="version", version="MarkMate 0.1.0")
+
     subparsers = parser.add_subparsers(
-        dest="command",
-        help="Available commands",
-        metavar="COMMAND"
+        dest="command", help="Available commands", metavar="COMMAND"
     )
-    
+
     # Add subcommand parsers
     consolidate.add_parser(subparsers)
     scan.add_parser(subparsers)
     extract.add_parser(subparsers)
     grade.add_parser(subparsers)
     generate_config.add_parser(subparsers)
-    
+
     return parser
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: Optional[list[str]] = None) -> int:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args(argv)
-    
+
     if not args.command:
         parser.print_help()
         return 1
-    
+
     try:
         # Route to appropriate command handler
         if args.command == "consolidate":
@@ -93,7 +87,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         else:
             print(f"Unknown command: {args.command}", file=sys.stderr)
             return 1
-            
+
     except KeyboardInterrupt:
         print("\nOperation cancelled by user", file=sys.stderr)
         return 130

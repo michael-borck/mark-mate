@@ -62,3 +62,82 @@ privacy:
   auto_delete_submissions: false  # Automatically delete submission data after grading
   retention_days: 30             # Days to retain grading data
   anonymize_logs: true           # Remove student IDs from detailed logs
+
+# Prompt templates for grading (supports placeholder substitution)
+prompts:
+  default:
+    system: "You are an expert academic grader. Provide detailed, fair, and constructive feedback."
+    template: |
+      ASSIGNMENT SPECIFICATION:
+      {assignment_spec}
+
+      GRADING RUBRIC:
+      {rubric}
+
+      STUDENT SUBMISSION (Student ID: {student_id}):
+      {content_summary}
+
+      GRADING INSTRUCTIONS:
+      1. Evaluate the submission against each criterion in the rubric
+      2. Provide a mark out of {max_mark}
+      3. Give specific feedback on strengths and areas for improvement
+      4. Consider both technical implementation and documentation quality
+      {additional_instructions}
+
+      {output_format}
+
+  wordpress:
+    system: "You are an expert WordPress developer and educator evaluating student work."
+    template: |
+      WORDPRESS ASSIGNMENT:
+      {assignment_spec}
+
+      GRADING RUBRIC:
+      {rubric}
+
+      STUDENT WORDPRESS SITE (Student ID: {student_id}):
+      {content_summary}
+
+      WORDPRESS-SPECIFIC EVALUATION:
+      - Assess theme customization and design choices
+      - Evaluate plugin usage and AI integration
+      - Review content quality and organization
+      - Check security configuration
+      {additional_instructions}
+
+      {output_format}
+
+# Reusable prompt sections
+prompt_sections:
+  additional_instructions:
+    wordpress: |
+      5. For WordPress assignments, assess security, AI integration, and content quality
+      6. Evaluate theme customization and plugin implementation
+      7. Check for appropriate use of AI-related plugins
+    programming: |
+      5. Assess code quality, structure, and best practices
+      6. Evaluate testing and documentation
+      7. Check for proper error handling and edge cases
+    general: |
+      5. Assess overall presentation and organization
+      6. Evaluate adherence to assignment requirements
+  
+  output_format: |
+    REQUIRED OUTPUT FORMAT:
+    You MUST respond with a valid JSON object in exactly this format:
+
+    {{
+      "mark": [numeric score out of {max_mark}],
+      "max_mark": {max_mark},
+      "feedback": "[Detailed feedback covering strengths, weaknesses, and specific improvements needed]",
+      "strengths": ["strength 1", "strength 2", "strength 3"],
+      "improvements": ["improvement 1", "improvement 2", "improvement 3"],
+      "confidence": [0.0 to 1.0 indicating your confidence in this assessment]
+    }}
+
+    IMPORTANT: 
+    - Respond ONLY with valid JSON - no additional text before or after
+    - Use double quotes for all strings
+    - Ensure the mark is a number between 0 and {max_mark}
+    - Keep feedback concise but comprehensive
+    - List 2-4 key strengths and improvements
