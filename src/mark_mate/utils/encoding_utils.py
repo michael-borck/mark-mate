@@ -1,9 +1,10 @@
-"""
-Enhanced encoding utilities for reading files from ESL student environments.
+"""Enhanced encoding utilities for reading files from ESL student environments.
 
 This module provides robust encoding detection and fallback mechanisms
 to handle files created in various international environments.
 """
+
+from __future__ import annotations
 
 import logging
 import os
@@ -15,20 +16,19 @@ logger = logging.getLogger(__name__)
 def try_multiple_encodings(
     file_path: str, content_type: str = "text"
 ) -> tuple[Optional[str], Optional[str]]:
-    """
-    Try multiple encodings to read a file, optimized for ESL student environments.
+    """Try multiple encodings to read a file, optimized for ESL student environments.
 
     Args:
-        file_path: Path to the file to read
-        content_type: Type hint for logging (e.g., "text", "code", "markdown", "json")
+        file_path: Path to the file to read.
+        content_type: Type hint for logging (e.g., "text", "code", "markdown", "json").
 
     Returns:
-        Tuple of (content, encoding_used) or (None, None) if all attempts fail
+        Tuple of (content, encoding_used) or (None, None) if all attempts fail.
     """
     # Common encodings used by ESL students, ordered by likelihood of success
     encodings = _get_encoding_priority_list(content_type)
 
-    errors_encountered = []
+    errors_encountered: list[str] = []
 
     # First pass: Try strict decoding
     for encoding in encodings:
@@ -68,21 +68,20 @@ def try_multiple_encodings(
 
     # Log all attempted encodings for debugging
     logger.error(f"Failed to read {file_path} with any encoding. Attempts made:")
-    for error in errors_encountered:
-        logger.error(f"  - {error}")
+    for error_msg in errors_encountered:
+        logger.error(f"  - {error_msg}")
 
     return None, None
 
 
 def _get_encoding_priority_list(content_type: str) -> list[str]:
-    """
-    Get prioritized encoding list based on content type and ESL student usage patterns.
+    """Get prioritized encoding list based on content type and ESL student usage patterns.
 
     Args:
-        content_type: Type of content being read (text, code, json, markdown, etc.)
+        content_type: Type of content being read (text, code, json, markdown, etc.).
 
     Returns:
-        List of encodings in priority order
+        List of encodings in priority order.
     """
     # Base encodings common across all content types
     base_encodings = [
@@ -134,15 +133,14 @@ def _get_encoding_priority_list(content_type: str) -> list[str]:
 def safe_read_text_file(
     file_path: str, content_type: str = "text"
 ) -> tuple[Optional[str], Optional[str], Optional[str]]:
-    """
-    Safely read a text file with comprehensive encoding detection and error reporting.
+    """Safely read a text file with comprehensive encoding detection and error reporting.
 
     Args:
-        file_path: Path to the file to read
-        content_type: Type hint for encoding optimization
+        file_path: Path to the file to read.
+        content_type: Type hint for encoding optimization.
 
     Returns:
-        Tuple of (content, encoding_used, error_message)
+        Tuple of (content, encoding_used, error_message).
         - If successful: (content, encoding, None)
         - If failed: (None, None, error_message)
     """
@@ -174,25 +172,23 @@ def safe_read_text_file(
 
 
 def create_encoding_error_message(file_path: str, content_type: str = "text") -> str:
-    """
-    Create a standardized error message for encoding failures.
+    """Create a standardized error message for encoding failures.
 
     Args:
-        file_path: Path to the file that failed
-        content_type: Type of content that was being read
+        file_path: Path to the file that failed.
+        content_type: Type of content that was being read.
 
     Returns:
-        Formatted error message for inclusion in extraction results
+        Formatted error message for inclusion in extraction results.
     """
     return f"[ENCODING ERROR] Could not read {content_type} file with any supported encoding: {os.path.basename(file_path)}"
 
 
-def get_encoding_info() -> dict:
-    """
-    Get information about the encoding detection capabilities.
+def get_encoding_info() -> dict[str, bool | list[str]]:
+    """Get information about the encoding detection capabilities.
 
     Returns:
-        Dictionary with encoding support information
+        Dictionary with encoding support information.
     """
     return {
         "supported_encodings": _get_encoding_priority_list("text"),
@@ -203,14 +199,13 @@ def get_encoding_info() -> dict:
 
 
 def detect_encoding(file_path: str) -> Optional[str]:
-    """
-    Simple wrapper to detect file encoding.
+    """Simple wrapper to detect file encoding.
 
     Args:
-        file_path: Path to the file
+        file_path: Path to the file.
 
     Returns:
-        Detected encoding or None if detection fails
+        Detected encoding or None if detection fails.
     """
-    content, encoding = try_multiple_encodings(file_path)
+    _, encoding = try_multiple_encodings(file_path)
     return encoding

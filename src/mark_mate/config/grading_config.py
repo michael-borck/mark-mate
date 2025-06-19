@@ -1,8 +1,9 @@
-"""
-MarkMate Grading Configuration Management
+"""MarkMate Grading Configuration Management.
 
 Handles loading and validation of grading configurations from YAML files.
 """
+
+from __future__ import annotations
 
 import logging
 import os
@@ -56,7 +57,7 @@ class GradingConfig:
 class GradingConfigManager:
     """Manages grading configurations and provides defaults."""
 
-    DEFAULT_CONFIG = {
+    DEFAULT_CONFIG: dict[str, Any] = {
         "grading": {
             "runs_per_grader": 1,
             "averaging_method": "mean",
@@ -159,19 +160,18 @@ IMPORTANT:
         },
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the configuration manager."""
         pass
 
     def load_config(self, config_path: Optional[str] = None) -> GradingConfig:
-        """
-        Load grading configuration from file or use defaults.
+        """Load grading configuration from file or use defaults.
 
         Args:
             config_path: Path to YAML configuration file. If None, uses defaults.
 
         Returns:
-            GradingConfig object with loaded configuration
+            GradingConfig object with loaded configuration.
         """
         if config_path and os.path.exists(config_path):
             try:
@@ -190,13 +190,20 @@ IMPORTANT:
         return self._parse_config(config_data)
 
     def _parse_config(self, config_data: dict[str, Any]) -> GradingConfig:
-        """Parse configuration data into GradingConfig object."""
+        """Parse configuration data into GradingConfig object.
+        
+        Args:
+            config_data: Raw configuration dictionary.
+            
+        Returns:
+            Parsed GradingConfig object.
+        """
         # Extract grading settings
         grading_settings = config_data.get("grading", {})
         execution_settings = config_data.get("execution", {})
 
         # Parse graders
-        graders = []
+        graders: list[GraderConfig] = []
         for grader_data in config_data.get("graders", []):
             grader = GraderConfig(
                 name=grader_data["name"],
@@ -230,8 +237,15 @@ IMPORTANT:
 
         return config
 
-    def _validate_config(self, config: GradingConfig):
-        """Validate configuration settings."""
+    def _validate_config(self, config: GradingConfig) -> None:
+        """Validate configuration settings.
+        
+        Args:
+            config: Configuration to validate.
+            
+        Raises:
+            ValueError: If configuration is invalid.
+        """
         if not config.graders:
             raise ValueError("At least one grader must be configured")
 
@@ -247,7 +261,7 @@ IMPORTANT:
             raise ValueError(f"Invalid averaging_method: {config.averaging_method}")
 
         # Validate graders
-        provider_counts = {}
+        provider_counts: dict[str, int] = {}
         primary_feedback_count = 0
 
         for grader in config.graders:
@@ -273,14 +287,22 @@ IMPORTANT:
             f"{config.averaging_method} averaging"
         )
 
-    def save_default_config(self, output_path: str):
-        """Save default configuration to a YAML file."""
+    def save_default_config(self, output_path: str) -> None:
+        """Save default configuration to a YAML file.
+        
+        Args:
+            output_path: Path where to save the configuration file.
+        """
         with open(output_path, "w") as f:
             yaml.dump(self.DEFAULT_CONFIG, f, default_flow_style=False, indent=2)
         logger.info(f"Default configuration saved to {output_path}")
 
     def create_gemini_config(self) -> dict[str, Any]:
-        """Create a configuration that includes Gemini provider."""
+        """Create a configuration that includes Gemini provider.
+        
+        Returns:
+            Configuration dictionary with Gemini grader included.
+        """
         config = self.DEFAULT_CONFIG.copy()
 
         # Add Gemini grader
@@ -296,7 +318,11 @@ IMPORTANT:
         return config
 
     def create_minimal_config(self) -> dict[str, Any]:
-        """Create a minimal single-grader configuration."""
+        """Create a minimal single-grader configuration.
+        
+        Returns:
+            Minimal configuration dictionary with single grader.
+        """
         return {
             "grading": {
                 "runs_per_grader": 1,
@@ -322,8 +348,15 @@ IMPORTANT:
         }
 
     def get_providers_from_config(self, config: GradingConfig) -> list[str]:
-        """Extract unique providers from configuration."""
-        providers = set()
+        """Extract unique providers from configuration.
+        
+        Args:
+            config: Grading configuration.
+            
+        Returns:
+            List of unique provider names.
+        """
+        providers: set[str] = set()
         for grader in config.graders:
             providers.add(grader.provider)
         return list(providers)
@@ -331,7 +364,18 @@ IMPORTANT:
     def filter_graders_by_availability(
         self, config: GradingConfig, available_providers: list[str]
     ) -> GradingConfig:
-        """Filter graders based on available providers."""
+        """Filter graders based on available providers.
+        
+        Args:
+            config: Original grading configuration.
+            available_providers: List of available provider names.
+            
+        Returns:
+            New configuration with only available graders.
+            
+        Raises:
+            ValueError: If no graders are available.
+        """
         filtered_graders = [
             grader
             for grader in config.graders

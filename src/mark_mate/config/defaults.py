@@ -1,11 +1,14 @@
-"""
-MarkMate Default Configuration Values
+"""MarkMate Default Configuration Values.
 
 Default templates and configuration values used throughout MarkMate.
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 # Default grading prompt template
-DEFAULT_GRADING_PROMPT = """
+DEFAULT_GRADING_PROMPT: str = """
 You are an expert academic grader evaluating a student submission. Please provide a detailed assessment.
 
 ASSIGNMENT SPECIFICATION:
@@ -26,7 +29,7 @@ Be fair, consistent, and constructive in your evaluation. Consider all aspects o
 """
 
 # Default file type mappings
-FILE_TYPE_MAPPINGS = {
+FILE_TYPE_MAPPINGS: dict[str, str] = {
     # Document types
     ".pdf": "pdf",
     ".docx": "docx",
@@ -86,7 +89,7 @@ FILE_TYPE_MAPPINGS = {
 }
 
 # WordPress backup file patterns
-WORDPRESS_PATTERNS = {
+WORDPRESS_PATTERNS: dict[str, list[str]] = {
     "themes": ["-themes.zip", "_themes.zip"],
     "plugins": ["-plugins.zip", "_plugins.zip"],
     "uploads": ["-uploads.zip", "_uploads.zip"],
@@ -96,7 +99,7 @@ WORDPRESS_PATTERNS = {
 }
 
 # GitHub URL patterns for detection
-GITHUB_URL_PATTERNS = [
+GITHUB_URL_PATTERNS: list[str] = [
     # Standard GitHub repository URLs
     r"https://github\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+/?(?:\.git)?",
     r"http://github\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+/?(?:\.git)?",
@@ -112,7 +115,7 @@ GITHUB_URL_PATTERNS = [
 ]
 
 # Code analysis patterns
-CODE_ANALYSIS_PATTERNS = {
+CODE_ANALYSIS_PATTERNS: dict[str, dict[str, list[str]]] = {
     "python": {
         "function": [r"def\s+\w+\s*\(", r"async\s+def\s+\w+\s*\("],
         "class": [r"class\s+\w+\s*[\(:]"],
@@ -148,7 +151,7 @@ CODE_ANALYSIS_PATTERNS = {
 }
 
 # AI-related keywords for plugin detection
-AI_KEYWORDS = [
+AI_KEYWORDS: list[str] = [
     "ai",
     "artificial",
     "intelligence",
@@ -178,7 +181,7 @@ AI_KEYWORDS = [
 ]
 
 # Default rubric extraction patterns
-RUBRIC_PATTERNS = [
+RUBRIC_PATTERNS: list[str] = [
     r"(?i)rubric[:\s]*(.*?)(?=\n\n|\Z)",
     r"(?i)assessment criteria[:\s]*(.*?)(?=\n\n|\Z)",
     r"(?i)marking scheme[:\s]*(.*?)(?=\n\n|\Z)",
@@ -187,7 +190,7 @@ RUBRIC_PATTERNS = [
 ]
 
 # Mark extraction patterns
-MARK_PATTERNS = [
+MARK_PATTERNS: list[str] = [
     r"(?i)total[:\s]*(\d+)",
     r"(?i)out of[:\s]*(\d+)",
     r"(?i)marks?[:\s]*(\d+)",
@@ -197,7 +200,7 @@ MARK_PATTERNS = [
 ]
 
 # Default encoding detection order
-ENCODING_DETECTION_ORDER = [
+ENCODING_DETECTION_ORDER: list[str] = [
     "utf-8",
     "utf-16",
     "utf-16-le",
@@ -216,7 +219,7 @@ ENCODING_DETECTION_ORDER = [
 ]
 
 # CLI help messages
-CLI_HELP = {
+CLI_HELP: dict[str, str] = {
     "consolidate": "Consolidate and organize student submission files with intelligent filtering",
     "scan": "Scan submissions for GitHub repository URLs and create mapping files",
     "extract": "Extract and analyze content from student submissions with comprehensive multi-format support",
@@ -224,7 +227,7 @@ CLI_HELP = {
 }
 
 # Default output templates
-OUTPUT_TEMPLATES = {
+OUTPUT_TEMPLATES: dict[str, dict[str, Any]] = {
     "extraction_session": {
         "timestamp": None,
         "total_students": 0,

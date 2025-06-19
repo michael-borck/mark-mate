@@ -1,15 +1,16 @@
-"""
-MarkMate Configuration Settings
+"""MarkMate Configuration Settings.
 
 Default configuration and settings management.
 """
+
+from __future__ import annotations
 
 import os
 from pathlib import Path
 from typing import Any, Optional
 
 # Default configuration
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: dict[str, Any] = {
     "processing": {
         "max_file_size_mb": 100,
         "supported_encodings": [
@@ -63,27 +64,25 @@ DEFAULT_CONFIG = {
 class Config:
     """Configuration manager for MarkMate."""
 
-    def __init__(self, config_dict: Optional[dict[str, Any]] = None):
-        """
-        Initialize configuration.
+    def __init__(self, config_dict: Optional[dict[str, Any]] = None) -> None:
+        """Initialize configuration.
 
         Args:
-            config_dict: Custom configuration dictionary
+            config_dict: Custom configuration dictionary.
         """
-        self._config = DEFAULT_CONFIG.copy()
+        self._config: dict[str, Any] = DEFAULT_CONFIG.copy()
         if config_dict:
             self._merge_config(config_dict)
 
     def get(self, key_path: str, default: Any = None) -> Any:
-        """
-        Get configuration value by dot-separated key path.
+        """Get configuration value by dot-separated key path.
 
         Args:
-            key_path: Dot-separated path (e.g., "processing.max_file_size_mb")
-            default: Default value if key not found
+            key_path: Dot-separated path (e.g., "processing.max_file_size_mb").
+            default: Default value if key not found.
 
         Returns:
-            Configuration value
+            Configuration value.
         """
         keys = key_path.split(".")
         value = self._config
@@ -96,12 +95,11 @@ class Config:
             return default
 
     def set(self, key_path: str, value: Any) -> None:
-        """
-        Set configuration value by dot-separated key path.
+        """Set configuration value by dot-separated key path.
 
         Args:
-            key_path: Dot-separated path
-            value: Value to set
+            key_path: Dot-separated path.
+            value: Value to set.
         """
         keys = key_path.split(".")
         config = self._config
@@ -116,9 +114,13 @@ class Config:
         config[keys[-1]] = value
 
     def _merge_config(self, custom_config: dict[str, Any]) -> None:
-        """Merge custom configuration with default."""
+        """Merge custom configuration with default.
+        
+        Args:
+            custom_config: Custom configuration to merge.
+        """
 
-        def merge_dict(base: dict, custom: dict) -> dict:
+        def merge_dict(base: dict[str, Any], custom: dict[str, Any]) -> dict[str, Any]:
             for key, value in custom.items():
                 if (
                     key in base
@@ -130,58 +132,77 @@ class Config:
                     base[key] = value
             return base
 
-        merge_dict(self._config, custom_config)
+        _ = merge_dict(self._config, custom_config)
 
     @property
     def processing(self) -> dict[str, Any]:
-        """Get processing configuration."""
+        """Get processing configuration.
+        
+        Returns:
+            Processing configuration dictionary.
+        """
         return self._config["processing"]
 
     @property
     def extraction(self) -> dict[str, Any]:
-        """Get extraction configuration."""
+        """Get extraction configuration.
+        
+        Returns:
+            Extraction configuration dictionary.
+        """
         return self._config["extraction"]
 
     @property
     def grading(self) -> dict[str, Any]:
-        """Get grading configuration."""
+        """Get grading configuration.
+        
+        Returns:
+            Grading configuration dictionary.
+        """
         return self._config["grading"]
 
     @property
     def cli(self) -> dict[str, Any]:
-        """Get CLI configuration."""
+        """Get CLI configuration.
+        
+        Returns:
+            CLI configuration dictionary.
+        """
         return self._config["cli"]
 
 
 # Global configuration instance
-config = Config()
+config: Config = Config()
 
 
 def load_config_file(config_path: str) -> Config:
-    """
-    Load configuration from file.
+    """Load configuration from file.
 
     Args:
-        config_path: Path to configuration file (JSON or YAML)
+        config_path: Path to configuration file (JSON or YAML).
 
     Returns:
-        Config instance
+        Config instance.
+        
+    Raises:
+        FileNotFoundError: If configuration file doesn't exist.
+        ImportError: If PyYAML is required but not installed.
     """
     import json
 
-    config_path = Path(config_path)
+    config_path_obj = Path(config_path)
 
-    if not config_path.exists():
+    if not config_path_obj.exists():
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-    with open(config_path) as f:
-        if config_path.suffix.lower() in [".yml", ".yaml"]:
+    with open(config_path_obj) as f:
+        if config_path_obj.suffix.lower() in [".yml", ".yaml"]:
             try:
                 import yaml
 
                 custom_config = yaml.safe_load(f)
-            except ImportError:
-                raise ImportError("PyYAML required for YAML configuration files")
+            except ImportError as e:
+                raise ImportError("PyYAML required for YAML configuration files") from e
         else:
             custom_config = json.load(f)
 
@@ -189,11 +210,10 @@ def load_config_file(config_path: str) -> Config:
 
 
 def get_api_keys() -> dict[str, Optional[str]]:
-    """
-    Get API keys from environment variables.
+    """Get API keys from environment variables.
 
     Returns:
-        Dictionary of API keys
+        Dictionary of API keys.
     """
     return {
         "anthropic": os.getenv("ANTHROPIC_API_KEY"),
@@ -201,19 +221,18 @@ def get_api_keys() -> dict[str, Optional[str]]:
     }
 
 
-def validate_api_keys(required_providers: list) -> dict[str, bool]:
-    """
-    Validate that required API keys are available.
+def validate_api_keys(required_providers: list[str]) -> dict[str, bool]:
+    """Validate that required API keys are available.
 
     Args:
-        required_providers: List of required providers
+        required_providers: List of required providers.
 
     Returns:
-        Dictionary indicating which providers are available
+        Dictionary indicating which providers are available.
     """
     api_keys = get_api_keys()
 
-    availability = {}
+    availability: dict[str, bool] = {}
     for provider in required_providers:
         if provider == "claude":
             availability["claude"] = bool(api_keys["anthropic"])
