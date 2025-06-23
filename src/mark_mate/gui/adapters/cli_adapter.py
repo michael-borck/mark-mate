@@ -275,7 +275,7 @@ class CLIAdapter:
         max_students: Optional[int] = None,
         dry_run: bool = False,
         config: Optional[str] = None,
-        progress_callback: Optional[ProgressCallback] = None,
+        progress_callback: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Run grade command asynchronously.
@@ -298,7 +298,7 @@ class CLIAdapter:
         
         try:
             if progress_callback:
-                progress_callback.update("Starting grading process...", 0.1)
+                progress_callback("Starting grading process...", 10.0)
             
             class MockArgs:
                 def __init__(self):
@@ -313,14 +313,14 @@ class CLIAdapter:
             args = MockArgs()
             
             if progress_callback:
-                progress_callback.update("Running AI grading...", 0.5)
+                progress_callback("Running AI grading...", 50.0)
             
             result = await asyncio.get_event_loop().run_in_executor(
                 None, grade.main, args
             )
             
             if progress_callback:
-                progress_callback.update("Grading complete!", 1.0)
+                progress_callback("Grading complete!", 100.0)
             
             return {
                 "success": True,
@@ -331,7 +331,7 @@ class CLIAdapter:
         except Exception as e:
             logger.error(f"Grade operation failed: {e}")
             if progress_callback:
-                progress_callback.update(f"Error: {str(e)}", 0.0)
+                progress_callback(f"Error: {str(e)}", 0.0)
             
             return {
                 "success": False,
@@ -349,7 +349,7 @@ class CLIAdapter:
         template: str = "full",
         provider: Optional[str] = None,
         force: bool = False,
-        progress_callback: Optional[ProgressCallback] = None,
+        progress_callback: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Run generate-config command asynchronously.
@@ -369,7 +369,7 @@ class CLIAdapter:
         
         try:
             if progress_callback:
-                progress_callback.update("Generating configuration...", 0.5)
+                progress_callback("Generating configuration...", 50.0)
             
             class MockArgs:
                 def __init__(self):
@@ -385,7 +385,7 @@ class CLIAdapter:
             )
             
             if progress_callback:
-                progress_callback.update("Configuration generated!", 1.0)
+                progress_callback("Configuration generated!", 100.0)
             
             return {
                 "success": True,
@@ -396,7 +396,7 @@ class CLIAdapter:
         except Exception as e:
             logger.error(f"Generate config operation failed: {e}")
             if progress_callback:
-                progress_callback.update(f"Error: {str(e)}", 0.0)
+                progress_callback(f"Error: {str(e)}", 0.0)
             
             return {
                 "success": False,

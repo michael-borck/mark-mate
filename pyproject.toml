@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mark-mate"
-version = "0.1.2"
+version = "0.2.0"
 description = "Your AI Teaching Assistant for Assignments and Assessment"
 readme = "README.md"
 license = {text = "MIT"}
