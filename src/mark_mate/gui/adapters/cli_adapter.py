@@ -40,7 +40,7 @@ class CLIAdapter:
         no_zip: bool = False,
         wordpress: bool = False,
         keep_mac_files: bool = False,
-        progress_callback: Optional[ProgressCallback] = None,
+        progress_callback: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Run consolidate command asynchronously.
@@ -61,7 +61,7 @@ class CLIAdapter:
         
         try:
             if progress_callback:
-                progress_callback.update("Starting consolidation...", 0.1)
+                progress_callback("Starting consolidation...", 10.0)
             
             # Create mock args object for CLI function
             class MockArgs:
@@ -75,7 +75,7 @@ class CLIAdapter:
             args = MockArgs()
             
             if progress_callback:
-                progress_callback.update("Processing submissions...", 0.5)
+                progress_callback("Processing submissions...", 50.0)
             
             # Run the consolidate command in a thread pool to avoid blocking
             result = await asyncio.get_event_loop().run_in_executor(
@@ -83,7 +83,7 @@ class CLIAdapter:
             )
             
             if progress_callback:
-                progress_callback.update("Consolidation complete!", 1.0)
+                progress_callback("Consolidation complete!", 100.0)
             
             return {
                 "success": True,
@@ -94,7 +94,7 @@ class CLIAdapter:
         except Exception as e:
             logger.error(f"Consolidate operation failed: {e}")
             if progress_callback:
-                progress_callback.update(f"Error: {str(e)}", 0.0)
+                progress_callback(f"Error: {str(e)}", 0.0)
             
             return {
                 "success": False,
@@ -111,7 +111,7 @@ class CLIAdapter:
         submissions_folder: str,
         output: str = "github_urls.txt",
         encoding: str = "utf-8",
-        progress_callback: Optional[ProgressCallback] = None,
+        progress_callback: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Run scan command asynchronously.
@@ -130,7 +130,7 @@ class CLIAdapter:
         
         try:
             if progress_callback:
-                progress_callback.update("Starting URL scan...", 0.1)
+                progress_callback("Starting URL scan...", 10.0)
             
             class MockArgs:
                 def __init__(self):
@@ -141,25 +141,46 @@ class CLIAdapter:
             args = MockArgs()
             
             if progress_callback:
-                progress_callback.update("Scanning for GitHub URLs...", 0.5)
+                progress_callback("Scanning for GitHub URLs...", 50.0)
             
-            result = await asyncio.get_event_loop().run_in_executor(
-                None, scan.main, args
+            # Import scan function and run it
+            from ...cli.scan import scan_submissions_folder, write_url_mapping
+            
+            # Run the actual scan
+            student_urls = await asyncio.get_event_loop().run_in_executor(
+                None, scan_submissions_folder, submissions_folder, encoding
             )
             
             if progress_callback:
-                progress_callback.update("Scan complete!", 1.0)
+                progress_callback("Writing results...", 80.0)
+            
+            # Write the mapping file
+            await asyncio.get_event_loop().run_in_executor(
+                None, write_url_mapping, student_urls, output
+            )
+            
+            if progress_callback:
+                progress_callback("Scan complete!", 100.0)
+            
+            # Calculate statistics
+            total_students = len(student_urls)
+            students_with_urls = len([s for s, urls in student_urls.items() if urls])
+            total_urls = sum(len(urls) for urls in student_urls.values())
             
             return {
                 "success": True,
-                "result": result,
-                "message": "URL scan completed successfully",
+                "urls_found": total_urls,
+                "students_with_urls": students_with_urls,
+                "total_students": total_students,
+                "files_scanned": "multiple",  # CLI doesn't track individual file count
+                "output_file": output,
+                "message": f"Found {total_urls} URLs for {students_with_urls}/{total_students} students",
             }
             
         except Exception as e:
             logger.error(f"Scan operation failed: {e}")
             if progress_callback:
-                progress_callback.update(f"Error: {str(e)}", 0.0)
+                progress_callback(f"Error: {str(e)}", 0.0)
             
             return {
                 "success": False,
@@ -179,7 +200,7 @@ class CLIAdapter:
         github_urls: Optional[str] = None,
         dry_run: bool = False,
         max_students: Optional[int] = None,
-        progress_callback: Optional[ProgressCallback] = None,
+        progress_callback: Optional[Callable[[str, Optional[float]], None]] = None,
     ) -> Dict[str, Any]:
         """
         Run extract command asynchronously.
@@ -201,7 +222,7 @@ class CLIAdapter:
         
         try:
             if progress_callback:
-                progress_callback.update("Starting content extraction...", 0.1)
+                progress_callback("Starting content extraction...", 10.0)
             
             class MockArgs:
                 def __init__(self):
@@ -215,14 +236,14 @@ class CLIAdapter:
             args = MockArgs()
             
             if progress_callback:
-                progress_callback.update("Extracting content...", 0.5)
+                progress_callback("Extracting content...", 50.0)
             
             result = await asyncio.get_event_loop().run_in_executor(
                 None, extract.main, args
             )
             
             if progress_callback:
-                progress_callback.update("Extraction complete!", 1.0)
+                progress_callback("Extraction complete!", 100.0)
             
             return {
                 "success": True,
@@ -233,7 +254,7 @@ class CLIAdapter:
         except Exception as e:
             logger.error(f"Extract operation failed: {e}")
             if progress_callback:
-                progress_callback.update(f"Error: {str(e)}", 0.0)
+                progress_callback(f"Error: {str(e)}", 0.0)
             
             return {
                 "success": False,
