@@ -5,37 +5,231 @@ This module provides comprehensive analysis of React components, TypeScript code
 and build configurations for modern frontend projects.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import re
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 logger = logging.getLogger(__name__)
+
+
+# Type definitions for React analysis results
+class ComponentAnalysisResult(TypedDict):
+    """Structure for React component analysis results."""
+    component_type: str
+    component_name: str
+    is_default_export: bool
+    is_named_export: bool
+    has_state: bool
+    lifecycle_methods: List[str]
+    hooks_used: List[str]
+    complexity_score: int
+
+
+class JSXAnalysisResult(TypedDict):
+    """Structure for JSX analysis results."""
+    jsx_elements: List[str]
+    conditional_rendering: Optional[bool]
+    list_rendering: bool
+    css_classes: bool
+    inline_styles: bool
+    event_handlers: List[str]
+    jsx_complexity: str
+
+
+class HooksAnalysisResult(TypedDict):
+    """Structure for React hooks analysis results."""
+    hooks_used: List[str]
+    hooks_count: Dict[str, int]
+    custom_hooks: List[str]
+    hooks_complexity: str
+    hooks_best_practices: List[str]
+    hooks_warnings: List[str]
+
+
+class PropsAnalysisResult(TypedDict):
+    """Structure for React props analysis results."""
+    has_props_interface: bool
+    props_interface_name: Optional[str]
+    destructured_props: List[str]
+    default_props: bool
+    prop_types: bool
+    props_spreading: bool
+    props_drilling_risk: str
+
+
+class BestPracticesResult(TypedDict):
+    """Structure for React best practices analysis results."""
+    score: float
+    issues: List[str]
+    warnings: List[str]
+    good_practices: List[str]
+    accessibility_score: float
+    performance_score: float
+
+
+class ReactSummaryResult(TypedDict):
+    """Structure for React analysis summary."""
+    component_quality: str
+    complexity_level: str
+    total_issues: int
+    react_score: float
+    recommendations: List[str]
+
+
+class TypeScriptTypesResult(TypedDict):
+    """Structure for TypeScript types analysis."""
+    types_defined: List[str]
+    interfaces_defined: List[str]
+    type_aliases: List[str]
+    union_types: List[str]
+    generic_types: List[str]
+
+
+class TypeScriptInterfacesResult(TypedDict):
+    """Structure for TypeScript interfaces analysis."""
+    interfaces_defined: List[str]
+    interface_extensions: List[str]
+    interface_complexity: str
+    interface_best_practices: List[str]
+
+
+class BuildToolsResult(TypedDict):
+    """Structure for build tools analysis."""
+    primary_build_tool: str
+    bundler: str
+    typescript_support: bool
+    css_preprocessing: List[str]
+    testing_framework: str
+    linting_tools: List[str]
+    build_optimizations: List[str]
+
+
+class DependencyAnalysisResult(TypedDict):
+    """Structure for dependency analysis."""
+    total_dependencies: int
+    production_count: int
+    development_count: int
+    framework_dependencies: List[str]
+    utility_libraries: List[str]
+    potential_issues: List[str]
+
+
+class ScriptAnalysisResult(TypedDict):
+    """Structure for package.json scripts analysis."""
+    available_scripts: List[str]
+    build_scripts: List[str]
+    dev_scripts: List[str]
+    test_scripts: List[str]
+    linting_scripts: List[str]
+    script_quality: str
+
+
+class QualityToolsResult(TypedDict):
+    """Structure for quality tools analysis."""
+    linting: bool
+    formatting: bool
+    type_checking: bool
+    testing: bool
+    pre_commit_hooks: bool
+    bundler_analysis: bool
+    quality_score: int
+
+
+def _ensure_list_field(data: Dict[str, Any], field_name: str) -> List[Any]:
+    """Ensure a dictionary field is a list, converting if necessary.
+    
+    Args:
+        data: Dictionary to check/modify.
+        field_name: Name of the field that should be a list.
+        
+    Returns:
+        The field value as a list.
+    """
+    if field_name not in data:
+        data[field_name] = []
+    elif not isinstance(data[field_name], list):
+        # Convert non-list to single-item list if it has meaningful content
+        if data[field_name] is not None and data[field_name] != "" and data[field_name] != 0:
+            data[field_name] = [data[field_name]]
+        else:
+            data[field_name] = []
+    return data[field_name]
+
+
+def _ensure_dict_field(data: Dict[str, Any], field_name: str) -> Dict[str, Any]:
+    """Ensure a dictionary field is a dict, converting if necessary.
+    
+    Args:
+        data: Dictionary to check/modify.
+        field_name: Name of the field that should be a dict.
+        
+    Returns:
+        The field value as a dict.
+    """
+    if field_name not in data or not isinstance(data[field_name], dict):
+        data[field_name] = {}
+    return data[field_name]
+
+
+def _safe_len(obj: Any) -> int:
+    """Safely get length of an object, returning 0 for non-sized objects.
+    
+    Args:
+        obj: Object to get length of.
+        
+    Returns:
+        Length of object, or 0 if not applicable.
+    """
+    try:
+        if hasattr(obj, '__len__'):
+            return len(obj)
+        return 0
+    except (TypeError, AttributeError):
+        return 0
+
+
+def _safe_append(lst: Any, item: Any) -> None:
+    """Safely append to a list-like object.
+    
+    Args:
+        lst: List-like object to append to.
+        item: Item to append.
+    """
+    if isinstance(lst, list):
+        lst.append(item)
+    else:
+        logger.warning(f"Attempted to append to non-list: {type(lst)}")
 
 
 class ReactAnalyzer:
     """React component analysis with JSX parsing and best practices."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
-        """Initialize the React analyzer."""
-        self.config = config or {}
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
+        """Initialize the React analyzer.
+        
+        Args:
+            config: Optional configuration for analysis.
+        """
+        self.config: Dict[str, Any] = config or {}
         logger.info("React analyzer initialized")
 
-    def analyze_component(self, file_path: str, source_code: str) -> dict[str, Any]:
-        """
-        Analyze React component for structure, patterns, and best practices.
+    def analyze_component(self, file_path: str, source_code: str) -> Dict[str, Any]:  # type: ignore[misc] - Complex return structure
+        """Analyze React component for structure, patterns, and best practices.
 
         Args:
-            file_path: Path to the React component file
-            source_code: Component source code
+            file_path: Path to the React component file.
+            source_code: Component source code.
 
         Returns:
-            Dictionary containing React analysis results
+            Dictionary containing React analysis results.
         """
-        analysis_results = {
+        analysis_results: dict[str, Any] = {
             "file_path": file_path,
-            "analysis_timestamp": str(datetime.now()),
+            "analysis_timestamp": datetime.now().isoformat(),
             "component_analysis": {},
             "jsx_analysis": {},
             "hooks_analysis": {},
@@ -169,7 +363,7 @@ class ReactAnalyzer:
     def _analyze_jsx_patterns(self, source_code: str) -> dict[str, Any]:
         """Analyze JSX patterns and usage."""
         try:
-            jsx_analysis = {
+            jsx_analysis: dict[str, Any] = {
                 "jsx_elements": [],
                 "custom_components": [],
                 "html_elements": [],
@@ -182,7 +376,7 @@ class ReactAnalyzer:
             }
 
             # Extract JSX elements
-            jsx_elements = re.findall(r"<(\w+)", source_code)
+            jsx_elements: list[str] = re.findall(r"<(\w+)", source_code)
             jsx_analysis["jsx_elements"] = list(set(jsx_elements))
 
             # Separate custom components from HTML elements
@@ -214,21 +408,25 @@ class ReactAnalyzer:
                 "footer",
             ]
 
-            for element in jsx_analysis["jsx_elements"]:
+            # Ensure list fields are properly initialized
+            html_elements_list = _ensure_list_field(jsx_analysis, "html_elements")
+            custom_components_list = _ensure_list_field(jsx_analysis, "custom_components")
+            jsx_elements_list = _ensure_list_field(jsx_analysis, "jsx_elements")
+            
+            for element in jsx_elements_list:
                 if element.lower() in html_elements:
-                    jsx_analysis["html_elements"].append(element)
+                    _safe_append(html_elements_list, element)
                 elif element[0].isupper():  # Custom components start with uppercase
-                    jsx_analysis["custom_components"].append(element)
+                    _safe_append(custom_components_list, element)
 
             # Conditional rendering patterns
-            conditional_patterns = []
+            conditional_patterns = _ensure_list_field(jsx_analysis, "conditional_rendering")
             if "&&" in source_code and "{" in source_code:
-                conditional_patterns.append("logical_and")
+                _safe_append(conditional_patterns, "logical_and")
             if "?" in source_code and ":" in source_code and "{" in source_code:
-                conditional_patterns.append("ternary_operator")
+                _safe_append(conditional_patterns, "ternary_operator")
             if "if(" in source_code or "if (" in source_code:
-                conditional_patterns.append("if_statement")
-            jsx_analysis["conditional_rendering"] = conditional_patterns
+                _safe_append(conditional_patterns, "if_statement")
 
             # List rendering
             if ".map(" in source_code and "{" in source_code:
@@ -241,15 +439,16 @@ class ReactAnalyzer:
                 jsx_analysis["css_classes"] = True
 
             # Event handlers
-            event_handlers = re.findall(r"on(\w+)=", source_code)
-            jsx_analysis["event_handlers"] = list(set(event_handlers))
+            event_handlers_found: list[str] = re.findall(r"on(\w+)=", source_code)
+            event_handlers_list = _ensure_list_field(jsx_analysis, "event_handlers")
+            jsx_analysis["event_handlers"] = list(set(event_handlers_found))
 
             # JSX complexity
             total_jsx_features = (
-                len(jsx_analysis["jsx_elements"])
-                + len(jsx_analysis["conditional_rendering"])
-                + len(jsx_analysis["event_handlers"])
-                + (1 if jsx_analysis["list_rendering"] else 0)
+                _safe_len(jsx_analysis.get("jsx_elements", []))
+                + _safe_len(jsx_analysis.get("conditional_rendering", []))
+                + _safe_len(jsx_analysis.get("event_handlers", []))
+                + (1 if jsx_analysis.get("list_rendering", False) else 0)
             )
 
             if total_jsx_features > 15:
@@ -266,7 +465,7 @@ class ReactAnalyzer:
     def _analyze_hooks_usage(self, source_code: str) -> dict[str, Any]:
         """Analyze React hooks usage and patterns."""
         try:
-            hooks_analysis = {
+            hooks_analysis: dict[str, Any] = {
                 "hooks_used": [],
                 "custom_hooks": [],
                 "hooks_count": {},
@@ -292,22 +491,28 @@ class ReactAnalyzer:
                 "useDebugValue",
             ]
 
+            # Ensure list and dict fields are properly initialized
+            hooks_used_list = _ensure_list_field(hooks_analysis, "hooks_used")
+            hooks_count_dict = _ensure_dict_field(hooks_analysis, "hooks_count")
+            
             for hook in standard_hooks:
                 matches = re.findall(f"{hook}\\(", source_code)
                 if matches:
-                    hooks_analysis["hooks_used"].append(hook)
-                    hooks_analysis["hooks_count"][hook] = len(matches)
+                    _safe_append(hooks_used_list, hook)
+                    hooks_count_dict[hook] = len(matches)
 
             # Custom hooks (functions starting with 'use')
             custom_hook_matches = re.findall(
                 r"(?:const|let|var)\s+(\w*use\w+)\s*=", source_code
             )
+            custom_hooks_list = _ensure_list_field(hooks_analysis, "custom_hooks")
             hooks_analysis["custom_hooks"] = list(set(custom_hook_matches))
 
             # Dependency arrays analysis
             dependency_arrays = re.findall(
                 r"useEffect\([^,]+,\s*\[([^\]]*)\]", source_code
             )
+            dependency_arrays_list = _ensure_list_field(hooks_analysis, "dependency_arrays")
             hooks_analysis["dependency_arrays"] = dependency_arrays
 
             # Best practices checks
@@ -319,7 +524,8 @@ class ReactAnalyzer:
                 ] = not empty_deps
 
             # Check if hooks are at top level (not in loops/conditions)
-            for hook in hooks_analysis["hooks_used"]:
+            hooks_used_safe = _ensure_list_field(hooks_analysis, "hooks_used")
+            for hook in hooks_used_safe:
                 # Simple check: if hook is inside if/for/while
                 hook_lines = [line for line in source_code.split("\n") if hook in line]
                 for line in hook_lines:
@@ -489,10 +695,10 @@ class ReactAnalyzer:
             good_practices_weight = 1
 
             penalty = (
-                len(best_practices["issues"]) * issues_weight
-                + len(best_practices["warnings"]) * warnings_weight
+                _safe_len(best_practices.get("issues", [])) * issues_weight
+                + _safe_len(best_practices.get("warnings", [])) * warnings_weight
             )
-            bonus = len(best_practices["good_practices"]) * good_practices_weight
+            bonus = _safe_len(best_practices.get("good_practices", [])) * good_practices_weight
 
             best_practices["score"] = max(0, min(100, 100 - penalty + bonus))
 
@@ -513,12 +719,15 @@ class ReactAnalyzer:
             "total_issues": 0,
             "recommendations": [],
         }
+        
+        # Ensure list fields are properly initialized
+        recommendations_list = _ensure_list_field(summary, "recommendations")
 
         try:
             # Count issues
             if "best_practices" in analysis_results:
                 bp = analysis_results["best_practices"]
-                summary["total_issues"] = len(bp.get("issues", [])) + len(
+                summary["total_issues"] = _safe_len(bp.get("issues", [])) + _safe_len(
                     bp.get("warnings", [])
                 )
 
@@ -591,23 +800,17 @@ class ReactAnalyzer:
                 )
 
             if summary["complexity_level"] == "high":
-                summary["recommendations"].append(
-                    "Consider breaking down complex components"
-                )
+                _safe_append(recommendations_list, "Consider breaking down complex components")
 
             if summary["modern_patterns_usage"] == "minimal":
-                summary["recommendations"].append(
-                    "Consider using modern React patterns (hooks, memoization)"
-                )
+                _safe_append(recommendations_list, "Consider using modern React patterns (hooks, memoization)")
 
             if "hooks_analysis" in analysis_results:
                 hooks_bp = analysis_results["hooks_analysis"].get(
                     "hooks_best_practices", {}
                 )
                 if not hooks_bp.get("proper_dependency_arrays", True):
-                    summary["recommendations"].append(
-                        "Review useEffect dependency arrays"
-                    )
+                    _safe_append(recommendations_list, "Review useEffect dependency arrays")
 
             return summary
 
@@ -691,6 +894,12 @@ class TypeScriptAnalyzer:
                 "type_annotations_count": 0,
                 "type_coverage_estimate": "unknown",
             }
+            
+            # Ensure list fields are properly initialized
+            primitive_types_list = _ensure_list_field(type_analysis, "primitive_types")
+            complex_types_list = _ensure_list_field(type_analysis, "complex_types")
+            union_types_list = _ensure_list_field(type_analysis, "union_types")
+            intersection_types_list = _ensure_list_field(type_analysis, "intersection_types")
 
             # Primitive types
             primitives = [
@@ -706,7 +915,7 @@ class TypeScriptAnalyzer:
             ]
             for primitive in primitives:
                 if f": {primitive}" in source_code or f"<{primitive}>" in source_code:
-                    type_analysis["primitive_types"].append(primitive)
+                    _safe_append(primitive_types_list, primitive)
 
             # Type aliases
             type_aliases = re.findall(r"type\s+(\w+)\s*=", source_code)
@@ -758,6 +967,10 @@ class TypeScriptAnalyzer:
                 "interface_properties": {},
                 "optional_properties": {},
             }
+            
+            # Ensure list fields are properly initialized
+            interfaces_list = _ensure_list_field(interface_analysis, "interfaces")
+            interface_extensions_list = _ensure_list_field(interface_analysis, "interface_extensions")
 
             # Find interfaces
             interface_matches = re.findall(
@@ -771,12 +984,10 @@ class TypeScriptAnalyzer:
                 extends_interface = match[1] if match[1] else None
                 interface_body = match[2]
 
-                interface_analysis["interfaces"].append(interface_name)
+                _safe_append(interfaces_list, interface_name)
 
                 if extends_interface:
-                    interface_analysis["interface_extensions"].append(
-                        {"interface": interface_name, "extends": extends_interface}
-                    )
+                    _safe_append(interface_extensions_list, {"interface": interface_name, "extends": extends_interface})
 
                 # Analyze properties
                 properties = re.findall(r"(\w+)(\??):\s*([^;]+)", interface_body)
@@ -813,24 +1024,26 @@ class TypeScriptAnalyzer:
                 "type_parameters": [],
                 "constraints": [],
             }
+            
+            # Ensure list fields are properly initialized
+            generic_functions_list = _ensure_list_field(generic_analysis, "generic_functions")
+            generic_interfaces_list = _ensure_list_field(generic_analysis, "generic_interfaces")
+            type_parameters_list = _ensure_list_field(generic_analysis, "type_parameters")
+            constraints_list = _ensure_list_field(generic_analysis, "constraints")
 
             # Generic functions
             generic_funcs = re.findall(r"function\s+(\w+)<([^>]+)>", source_code)
             for func_match in generic_funcs:
                 func_name = func_match[0]
                 type_params = func_match[1]
-                generic_analysis["generic_functions"].append(
-                    {"name": func_name, "type_parameters": type_params}
-                )
+                _safe_append(generic_functions_list, {"name": func_name, "type_parameters": type_params})
 
             # Generic interfaces
             generic_interfaces = re.findall(r"interface\s+(\w+)<([^>]+)>", source_code)
             for interface_match in generic_interfaces:
                 interface_name = interface_match[0]
                 type_params = interface_match[1]
-                generic_analysis["generic_interfaces"].append(
-                    {"name": interface_name, "type_parameters": type_params}
-                )
+                _safe_append(generic_interfaces_list, {"name": interface_name, "type_parameters": type_params})
 
             # Type parameters
             type_params = re.findall(
@@ -839,11 +1052,9 @@ class TypeScriptAnalyzer:
             for param_match in type_params:
                 param_name = param_match[0]
                 constraint = param_match[1] if param_match[1] else None
-                generic_analysis["type_parameters"].append(param_name)
+                _safe_append(type_parameters_list, param_name)
                 if constraint:
-                    generic_analysis["constraints"].append(
-                        {"parameter": param_name, "constraint": constraint}
-                    )
+                    _safe_append(constraints_list, {"parameter": param_name, "constraint": constraint})
 
             return generic_analysis
 
@@ -862,6 +1073,10 @@ class TypeScriptAnalyzer:
                 "named_exports": [],
                 "import_types": [],
             }
+            
+            # Ensure list fields are properly initialized
+            imports_list = _ensure_list_field(import_analysis, "imports")
+            import_types_list = _ensure_list_field(import_analysis, "import_types")
 
             # Regular imports
             imports = re.findall(
@@ -874,23 +1089,19 @@ class TypeScriptAnalyzer:
                 namespace_import = import_match[2] if import_match[2] else None
                 module_path = import_match[3]
 
-                import_analysis["imports"].append(
-                    {
-                        "module": module_path,
-                        "named": named_imports.split(",") if named_imports else [],
-                        "default": default_import,
-                        "namespace": namespace_import,
-                    }
-                )
+                _safe_append(imports_list, {
+                    "module": module_path,
+                    "named": named_imports.split(",") if named_imports else [],
+                    "default": default_import,
+                    "namespace": namespace_import,
+                })
 
             # Type imports
             type_imports = re.findall(
                 r'import\s+type\s+{([^}]+)}\s+from\s+[\'"]([^\'"]+)[\'"]', source_code
             )
             for type_import in type_imports:
-                import_analysis["import_types"].append(
-                    {"types": type_import[0].split(","), "module": type_import[1]}
-                )
+                _safe_append(import_types_list, {"types": type_import[0].split(","), "module": type_import[1]})
 
             # Dynamic imports
             if "import(" in source_code:
@@ -922,51 +1133,44 @@ class TypeScriptAnalyzer:
                 "good_practices": [],
                 "score": 0,
             }
+            
+            # Ensure list fields are properly initialized
+            issues_list = _ensure_list_field(best_practices, "issues")
+            warnings_list = _ensure_list_field(best_practices, "warnings")
+            good_practices_list = _ensure_list_field(best_practices, "good_practices")
 
             # Avoid 'any' type
             any_count = source_code.count(": any")
             if any_count > 0:
-                best_practices["warnings"].append(
-                    f'Using "any" type {any_count} times - consider more specific types'
-                )
+                _safe_append(warnings_list, f'Using "any" type {any_count} times - consider more specific types')
             else:
-                best_practices["good_practices"].append('Avoiding "any" type')
+                _safe_append(good_practices_list, 'Avoiding "any" type')
 
             # Use 'unknown' instead of 'any' for unknown types
             if ": unknown" in source_code:
-                best_practices["good_practices"].append(
-                    'Using "unknown" type for type safety'
-                )
+                _safe_append(good_practices_list, 'Using "unknown" type for type safety')
 
             # Interface naming convention (PascalCase)
             interfaces = re.findall(r"interface\s+(\w+)", source_code)
             for interface in interfaces:
                 if not interface[0].isupper():
-                    best_practices["warnings"].append(
-                        f'Interface "{interface}" should use PascalCase'
-                    )
+                    _safe_append(warnings_list, f'Interface "{interface}" should use PascalCase')
                 else:
-                    best_practices["good_practices"].append(
-                        "Proper interface naming convention"
-                    )
+                    _safe_append(good_practices_list, "Proper interface naming convention")
                     break
 
             # Type assertions (should be minimal)
             type_assertions = source_code.count(" as ") + source_code.count("<")
             if type_assertions > 3:
-                best_practices["warnings"].append(
-                    "Many type assertions - consider improving type inference"
-                )
+                _safe_append(warnings_list, "Many type assertions - consider improving type inference")
 
             # Optional chaining
             if "?." in source_code:
-                best_practices["good_practices"].append("Using optional chaining")
+                _safe_append(good_practices_list, "Using optional chaining")
 
             # Nullish coalescing
             if "??" in source_code:
-                best_practices["good_practices"].append(
-                    "Using nullish coalescing operator"
-                )
+                _safe_append(good_practices_list, "Using nullish coalescing operator")
 
             # Strict type checking patterns
             if (
@@ -974,9 +1178,7 @@ class TypeScriptAnalyzer:
                 or "| null" in source_code
                 or "| undefined" in source_code
             ):
-                best_practices["good_practices"].append(
-                    "Using strict null checking patterns"
-                )
+                _safe_append(good_practices_list, "Using strict null checking patterns")
 
             # Generic constraints
             if "extends" in source_code and "<" in source_code:
@@ -988,10 +1190,10 @@ class TypeScriptAnalyzer:
             good_practices_weight = 1
 
             penalty = (
-                len(best_practices["issues"]) * issues_weight
-                + len(best_practices["warnings"]) * warnings_weight
+                _safe_len(best_practices.get("issues", [])) * issues_weight
+                + _safe_len(best_practices.get("warnings", [])) * warnings_weight
             )
-            bonus = len(best_practices["good_practices"]) * good_practices_weight
+            bonus = _safe_len(best_practices.get("good_practices", [])) * good_practices_weight
 
             best_practices["score"] = max(0, min(100, 100 - penalty + bonus))
 
@@ -1012,12 +1214,15 @@ class TypeScriptAnalyzer:
             "total_issues": 0,
             "recommendations": [],
         }
+        
+        # Ensure list fields are properly initialized
+        recommendations_list = _ensure_list_field(summary, "recommendations")
 
         try:
             # Count issues
             if "best_practices" in analysis_results:
                 bp = analysis_results["best_practices"]
-                summary["total_issues"] = len(bp.get("issues", [])) + len(
+                summary["total_issues"] = _safe_len(bp.get("issues", [])) + _safe_len(
                     bp.get("warnings", [])
                 )
 
@@ -1085,19 +1290,13 @@ class TypeScriptAnalyzer:
 
             # Generate recommendations
             if summary["type_safety_level"] in ["poor", "fair"]:
-                summary["recommendations"].append(
-                    'Improve type annotations and avoid "any" type'
-                )
+                _safe_append(recommendations_list, 'Improve type annotations and avoid "any" type')
 
             if summary["modern_features_usage"] == "minimal":
-                summary["recommendations"].append(
-                    "Consider using more TypeScript features (generics, unions, interfaces)"
-                )
+                _safe_append(recommendations_list, "Consider using more TypeScript features (generics, unions, interfaces)")
 
             if summary["total_issues"] > 2:
-                summary["recommendations"].append(
-                    "Address TypeScript best practices violations"
-                )
+                _safe_append(recommendations_list, "Address TypeScript best practices violations")
 
             return summary
 
@@ -1482,12 +1681,13 @@ class BuildConfigAnalyzer:
             analysis["entry_points"] = ["detected"]
 
         if "module:" in config_content and "rules:" in config_content:
+            loaders_list = _ensure_list_field(analysis, "loaders")
             if "babel-loader" in config_content:
-                analysis["loaders"].append("babel")
+                _safe_append(loaders_list, "babel")
             if "ts-loader" in config_content:
-                analysis["loaders"].append("typescript")
+                _safe_append(loaders_list, "typescript")
             if "css-loader" in config_content:
-                analysis["loaders"].append("css")
+                _safe_append(loaders_list, "css")
 
         if "optimization:" in config_content:
             analysis["optimization_config"] = True
@@ -1514,29 +1714,27 @@ class BuildConfigAnalyzer:
     def _generate_package_recommendations(self, analysis: dict[str, Any]) -> list[str]:
         """Generate recommendations based on package.json analysis."""
         recommendations = []
+        # Ensure list field is properly initialized
+        _ensure_list_field({"recommendations": recommendations}, "recommendations")
 
         # Build tools recommendations
         build_analysis = analysis.get("build_analysis", {})
         if build_analysis.get("primary_build_tool") == "unknown":
-            recommendations.append(
-                "Consider adding a modern build tool like Vite or Webpack"
-            )
+            _safe_append(recommendations, "Consider adding a modern build tool like Vite or Webpack")
 
         # Quality tools recommendations
         quality_tools = analysis.get("quality_tools", {})
         if not quality_tools.get("linting"):
-            recommendations.append("Add ESLint for code linting")
+            _safe_append(recommendations, "Add ESLint for code linting")
         if not quality_tools.get("formatting"):
-            recommendations.append("Add Prettier for code formatting")
+            _safe_append(recommendations, "Add Prettier for code formatting")
         if not quality_tools.get("testing"):
-            recommendations.append("Add a testing framework like Jest or Vitest")
+            _safe_append(recommendations, "Add a testing framework like Jest or Vitest")
 
         # Scripts recommendations
         script_analysis = analysis.get("script_analysis", {})
         if script_analysis.get("script_quality") in ["basic", "minimal"]:
-            recommendations.append(
-                "Add comprehensive npm scripts for build, dev, and test"
-            )
+            _safe_append(recommendations, "Add comprehensive npm scripts for build, dev, and test")
 
         # Dependency recommendations
         dependency_analysis = analysis.get("dependency_analysis", {})

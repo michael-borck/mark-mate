@@ -1,9 +1,10 @@
-"""
-MarkMate Prompt Manager
+"""MarkMate Prompt Manager.
 
 Handles prompt template loading, placeholder substitution, and prompt composition
 for flexible and maintainable grading prompts.
 """
+
+from __future__ import annotations
 
 import logging
 import re
@@ -25,12 +26,14 @@ class PromptTemplate:
 class PromptManager:
     """Manages prompt templates and placeholder substitution for grading."""
 
-    def __init__(self, prompt_config: dict[str, Any]):
-        """
-        Initialize prompt manager with configuration.
+    prompts: dict[str, Any]
+    prompt_sections: dict[str, Any]
+
+    def __init__(self, prompt_config: dict[str, Any]) -> None:
+        """Initialize prompt manager with configuration.
 
         Args:
-            prompt_config: Dictionary containing prompt and prompt_sections configuration
+            prompt_config: Dictionary containing prompt and prompt_sections configuration.
         """
         self.prompts = prompt_config.get("prompts", {})
         self.prompt_sections = prompt_config.get("prompt_sections", {})
@@ -44,7 +47,11 @@ class PromptManager:
         self._validate_prompts()
 
     def _get_fallback_prompt(self) -> dict[str, str]:
-        """Provide a fallback prompt if none is configured."""
+        """Provide a fallback prompt if none is configured.
+        
+        Returns:
+            Dictionary containing system and template for fallback prompt.
+        """
         return {
             "system": "You are an expert academic grader. Provide detailed, fair, and constructive feedback.",
             "template": """ASSIGNMENT SPECIFICATION:
@@ -65,8 +72,12 @@ GRADING INSTRUCTIONS:
 {output_format}""",
         }
 
-    def _validate_prompts(self):
-        """Validate prompt structure and required fields."""
+    def _validate_prompts(self) -> None:
+        """Validate prompt structure and required fields.
+        
+        Raises:
+            ValueError: If prompt structure is invalid.
+        """
         for prompt_name, prompt_data in self.prompts.items():
             if not isinstance(prompt_data, dict):
                 raise ValueError(f"Prompt '{prompt_name}' must be a dictionary")
@@ -83,15 +94,14 @@ GRADING INSTRUCTIONS:
     def get_prompt_template(
         self, prompt_name: str = "default", assignment_type: Optional[str] = None
     ) -> PromptTemplate:
-        """
-        Get a prompt template by name with assignment type fallback.
+        """Get a prompt template by name with assignment type fallback.
 
         Args:
-            prompt_name: Name of the prompt template
-            assignment_type: Type of assignment (wordpress, programming, etc.)
+            prompt_name: Name of the prompt template.
+            assignment_type: Type of assignment (wordpress, programming, etc.).
 
         Returns:
-            PromptTemplate object with system and template content
+            PromptTemplate object with system and template content.
         """
         # Try assignment type specific prompt first
         if assignment_type and assignment_type in self.prompts:
@@ -121,19 +131,18 @@ GRADING INSTRUCTIONS:
         prompt_name: str = "default",
         assignment_type: Optional[str] = None,
     ) -> dict[str, str]:
-        """
-        Build a complete grading prompt with placeholder substitution.
+        """Build a complete grading prompt with placeholder substitution.
 
         Args:
-            student_data: Student submission data
-            assignment_spec: Assignment specification text
-            rubric: Grading rubric text
-            max_mark: Maximum possible mark
-            prompt_name: Name of prompt template to use
-            assignment_type: Type of assignment for prompt selection
+            student_data: Student submission data.
+            assignment_spec: Assignment specification text.
+            rubric: Grading rubric text.
+            max_mark: Maximum possible mark.
+            prompt_name: Name of prompt template to use.
+            assignment_type: Type of assignment for prompt selection.
 
         Returns:
-            Dictionary with 'system' and 'user' prompts ready for LLM
+            Dictionary with 'system' and 'user' prompts ready for LLM.
         """
         # Get the appropriate template
         template = self.get_prompt_template(prompt_name, assignment_type)
@@ -156,7 +165,18 @@ GRADING INSTRUCTIONS:
         max_mark: int,
         assignment_type: Optional[str] = None,
     ) -> dict[str, str]:
-        """Build context dictionary for placeholder substitution."""
+        """Build context dictionary for placeholder substitution.
+        
+        Args:
+            student_data: Student submission data.
+            assignment_spec: Assignment specification text.
+            rubric: Grading rubric text.
+            max_mark: Maximum possible mark.
+            assignment_type: Type of assignment for prompt selection.
+            
+        Returns:
+            Dictionary of context values for placeholder substitution.
+        """
 
         # Basic context
         context = {
@@ -181,15 +201,14 @@ GRADING INSTRUCTIONS:
         return context
 
     def _substitute_placeholders(self, template: str, context: dict[str, str]) -> str:
-        """
-        Safely substitute placeholders in template.
+        """Safely substitute placeholders in template.
 
         Args:
-            template: Template string with {placeholder} markers
-            context: Dictionary of placeholder values
+            template: Template string with {placeholder} markers.
+            context: Dictionary of placeholder values.
 
         Returns:
-            Template with placeholders substituted
+            Template with placeholders substituted.
         """
         try:
             # Find all placeholders in template
@@ -214,7 +233,14 @@ GRADING INSTRUCTIONS:
             return template
 
     def _generate_content_summary(self, content: dict[str, Any]) -> str:
-        """Generate a summary of student submission content."""
+        """Generate a summary of student submission content.
+        
+        Args:
+            content: Dictionary containing student submission content.
+            
+        Returns:
+            Formatted string summary of submission content.
+        """
         summary_parts = []
 
         # Document content
@@ -304,7 +330,14 @@ GRADING INSTRUCTIONS:
     def _get_prompt_sections(
         self, assignment_type: Optional[str] = None
     ) -> dict[str, str]:
-        """Get reusable prompt sections based on assignment type."""
+        """Get reusable prompt sections based on assignment type.
+        
+        Args:
+            assignment_type: Type of assignment for section selection.
+            
+        Returns:
+            Dictionary of prompt sections for template substitution.
+        """
         sections = {}
 
         # Get output format section
@@ -344,7 +377,14 @@ IMPORTANT:
         return sections
 
     def _get_submission_metadata(self, student_data: dict[str, Any]) -> dict[str, str]:
-        """Extract additional metadata for prompt context."""
+        """Extract additional metadata for prompt context.
+        
+        Args:
+            student_data: Student submission data.
+            
+        Returns:
+            Dictionary of metadata for prompt context.
+        """
         metadata = {}
 
         # File count information
@@ -371,11 +411,22 @@ IMPORTANT:
         return metadata
 
     def list_available_prompts(self) -> list[str]:
-        """Get list of available prompt template names."""
+        """Get list of available prompt template names.
+        
+        Returns:
+            List of available prompt template names.
+        """
         return list(self.prompts.keys())
 
     def validate_template(self, template_name: str) -> bool:
-        """Validate that a template exists and is properly formatted."""
+        """Validate that a template exists and is properly formatted.
+        
+        Args:
+            template_name: Name of template to validate.
+            
+        Returns:
+            True if template is valid, False otherwise.
+        """
         if template_name not in self.prompts:
             return False
 

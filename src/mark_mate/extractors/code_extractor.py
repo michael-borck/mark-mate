@@ -6,6 +6,8 @@ providing detailed code quality assessment, structure analysis, and
 best practices evaluation.
 """
 
+from __future__ import annotations
+
 import ast
 import logging
 import os
@@ -20,9 +22,9 @@ try:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from utils.encoding_utils import create_encoding_error_message, safe_read_text_file
 
-    ENCODING_UTILS_AVAILABLE = True
+    _encoding_utils_available = True
 except ImportError:
-    ENCODING_UTILS_AVAILABLE = False
+    _encoding_utils_available = False
 
 # Static analysis imports
 try:
@@ -31,9 +33,9 @@ try:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from analyzers.static_analysis import StaticAnalyzer
 
-    STATIC_ANALYSIS_AVAILABLE = True
+    _static_analysis_available = True
 except ImportError:
-    STATIC_ANALYSIS_AVAILABLE = False
+    _static_analysis_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -41,46 +43,63 @@ logger = logging.getLogger(__name__)
 class CodeExtractor(BaseExtractor):
     """Extractor for Python source code with static analysis."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
         super().__init__(config)
-        self.extractor_name = "code_extractor"
-        self.supported_extensions = [".py"]
+        self.extractor_name: str = "code_extractor"
+        self.supported_extensions: list[str] = [".py"]
 
         # Initialize static analyzer if available
-        self.static_analyzer = None
-        self.static_analysis_available = STATIC_ANALYSIS_AVAILABLE
+        self.static_analyzer: Optional[Any] = None
+        self.static_analysis_available: bool = _static_analysis_available
         if self.static_analysis_available:
             try:
-                self.static_analyzer = StaticAnalyzer(config)
+                if '_static_analysis_available' in globals() and _static_analysis_available:
+                    self.static_analyzer = StaticAnalyzer(config)
                 logger.info("Static analyzer initialized successfully")
             except Exception as e:
                 logger.warning(f"Could not initialize static analyzer: {e}")
                 self.static_analysis_available = False
 
     def can_extract(self, file_path: str) -> bool:
-        """Check if this extractor can handle the given file."""
-        ext = os.path.splitext(file_path)[1].lower()
+        """Check if this extractor can handle the given file.
+        
+        Args:
+            file_path: Path to the file to check.
+            
+        Returns:
+            True if this is a Python file, False otherwise.
+        """
+        ext: str = os.path.splitext(file_path)[1].lower()
         return ext in self.supported_extensions
 
     def extract_content(self, file_path: str) -> dict[str, Any]:
-        """Extract content and perform static analysis on Python files."""
+        """Extract content and perform static analysis on Python files.
+        
+        Args:
+            file_path: Path to the Python file to extract.
+            
+        Returns:
+            Dictionary containing extracted content and analysis results.
+        """
         if not self.can_extract(file_path):
             return self.create_error_result(file_path, ValueError("Not a Python file"))
 
         try:
             # Read source code with enhanced encoding support
-            if ENCODING_UTILS_AVAILABLE:
+            if _encoding_utils_available:
                 source_code, encoding_used, error_msg = safe_read_text_file(
                     file_path, "python"
                 )
 
                 if source_code is None:
                     logger.error(f"Could not read Python file {file_path}: {error_msg}")
+                    if '_encoding_utils_available' in globals() and _encoding_utils_available:
+                        error_message = create_encoding_error_message(file_path, "Python code")
+                    else:
+                        error_message = f"Could not read file {file_path}"
                     return self.create_error_result(
                         file_path,
-                        ValueError(
-                            create_encoding_error_message(file_path, "Python code")
-                        ),
+                        ValueError(error_message),
                     )
 
                 logger.info(
@@ -100,10 +119,10 @@ class CodeExtractor(BaseExtractor):
                 )
 
             # Basic code structure analysis
-            basic_analysis = self._analyze_basic_structure(source_code, file_path)
+            basic_analysis: dict[str, Any] = self._analyze_basic_structure(source_code, file_path)
 
             # Full static analysis if available
-            static_analysis = {}
+            static_analysis: dict[str, Any] = {}
             if self.static_analyzer and self.static_analysis_available:
                 try:
                     static_analysis = self.static_analyzer.analyze_python_file(
@@ -119,12 +138,12 @@ class CodeExtractor(BaseExtractor):
                 static_analysis = {"warning": "Static analysis tools not available"}
 
             # Create comprehensive content text
-            content_text = self._create_content_text(
+            content_text: str = self._create_content_text(
                 source_code, basic_analysis, static_analysis
             )
 
             # Combine all analysis results
-            comprehensive_analysis = {
+            comprehensive_analysis: dict[str, Any] = {
                 "basic_structure": basic_analysis,
                 "static_analysis": static_analysis,
                 "content_metrics": {
@@ -157,11 +176,19 @@ class CodeExtractor(BaseExtractor):
     def _analyze_basic_structure(
         self, source_code: str, file_path: str
     ) -> dict[str, Any]:
-        """Perform basic structure analysis without external tools."""
+        """Perform basic structure analysis without external tools.
+        
+        Args:
+            source_code: Python source code to analyze.
+            file_path: Path to the source file.
+            
+        Returns:
+            Dictionary containing basic structure analysis.
+        """
         try:
-            tree = ast.parse(source_code)
+            tree: ast.AST = ast.parse(source_code)
 
-            analysis = {
+            analysis: dict[str, Any] = {
                 "functions": [],
                 "classes": [],
                 "imports": [],
@@ -173,7 +200,7 @@ class CodeExtractor(BaseExtractor):
             # Analyze top-level nodes
             for node in tree.body:
                 if isinstance(node, ast.FunctionDef):
-                    func_info = {
+                    func_info: dict[str, Any] = {
                         "name": node.name,
                         "line": node.lineno,
                         "is_private": node.name.startswith("_"),
@@ -183,7 +210,7 @@ class CodeExtractor(BaseExtractor):
                     analysis["functions"].append(func_info)
 
                 elif isinstance(node, ast.ClassDef):
-                    class_info = {
+                    class_info: dict[str, Any] = {
                         "name": node.name,
                         "line": node.lineno,
                         "is_private": node.name.startswith("_"),
@@ -240,7 +267,7 @@ class CodeExtractor(BaseExtractor):
                             )
 
             # Determine file type
-            filename = os.path.basename(file_path).lower()
+            filename: str = os.path.basename(file_path).lower()
             if "test" in filename or any(
                 f["name"].startswith("test_") for f in analysis["functions"]
             ):
@@ -283,12 +310,19 @@ class CodeExtractor(BaseExtractor):
             return {"error": str(e)}
 
     def _assess_import_organization(self, imports: list[dict[str, Any]]) -> str:
-        """Assess the organization of imports."""
+        """Assess the organization of imports.
+        
+        Args:
+            imports: List of import information dictionaries.
+            
+        Returns:
+            Assessment of import organization quality.
+        """
         if not imports:
             return "no_imports"
 
         # Check if imports are grouped (standard library, third-party, local)
-        import_lines = [imp["line"] for imp in imports]
+        import_lines: list[int] = [imp["line"] for imp in imports]
 
         # Simple heuristic: well-organized if imports are at the top and grouped
         if all(line < 20 for line in import_lines):  # Imports within first 20 lines
@@ -304,8 +338,17 @@ class CodeExtractor(BaseExtractor):
         basic_analysis: dict[str, Any],
         static_analysis: dict[str, Any],
     ) -> str:
-        """Create comprehensive text content for the Python file."""
-        content_parts = []
+        """Create comprehensive text content for the Python file.
+        
+        Args:
+            source_code: Python source code.
+            basic_analysis: Basic structure analysis results.
+            static_analysis: Static analysis results.
+            
+        Returns:
+            Formatted content text for the Python file.
+        """
+        content_parts: list[str] = []
 
         # Header with file analysis
         content_parts.append("PYTHON CODE ANALYSIS")
@@ -327,10 +370,10 @@ class CodeExtractor(BaseExtractor):
             if basic_analysis.get("functions"):
                 content_parts.append("FUNCTIONS:")
                 for func in basic_analysis["functions"]:
-                    doc_status = (
+                    doc_status: str = (
                         "✓ documented" if func["has_docstring"] else "✗ no docstring"
                     )
-                    visibility = "private" if func["is_private"] else "public"
+                    visibility: str = "private" if func["is_private"] else "public"
                     content_parts.append(
                         f"  - {func['name']} (line {func['line']}, {visibility}, {doc_status})"
                     )
@@ -340,7 +383,7 @@ class CodeExtractor(BaseExtractor):
             if basic_analysis.get("classes"):
                 content_parts.append("CLASSES:")
                 for cls in basic_analysis["classes"]:
-                    doc_status = (
+                    doc_status: str = (
                         "✓ documented" if cls["has_docstring"] else "✗ no docstring"
                     )
                     content_parts.append(
@@ -348,7 +391,7 @@ class CodeExtractor(BaseExtractor):
                     )
                     if cls.get("methods"):
                         for method in cls["methods"][:5]:  # Show first 5 methods
-                            method_type = (
+                            method_type: str = (
                                 "special"
                                 if method["is_special"]
                                 else "private"
@@ -377,7 +420,7 @@ class CodeExtractor(BaseExtractor):
             content_parts.append("CODE QUALITY ANALYSIS:")
 
             if "summary" in static_analysis:
-                summary = static_analysis["summary"]
+                summary: dict[str, Any] = static_analysis["summary"]
                 content_parts.append(
                     f"Overall Quality: {summary.get('overall_quality', 'unknown')}"
                 )
@@ -400,14 +443,14 @@ class CodeExtractor(BaseExtractor):
 
             # Tool-specific results
             if "flake8_analysis" in static_analysis:
-                flake8 = static_analysis["flake8_analysis"]
+                flake8: dict[str, Any] = static_analysis["flake8_analysis"]
                 if "summary" in flake8:
                     content_parts.append(
                         f"Style Issues (flake8): {flake8['summary'].get('total_issues', 0)}"
                     )
 
             if "pylint_analysis" in static_analysis:
-                pylint = static_analysis["pylint_analysis"]
+                pylint: dict[str, Any] = static_analysis["pylint_analysis"]
                 if "score" in pylint and pylint["score"] > 0:
                     content_parts.append(f"Pylint Score: {pylint['score']:.1f}/10")
 
@@ -419,8 +462,15 @@ class CodeExtractor(BaseExtractor):
         return "\\n".join(content_parts)
 
     def analyze_python_project(self, file_paths: list[str]) -> dict[str, Any]:
-        """Analyze multiple Python files as a project."""
-        project_analysis = {
+        """Analyze multiple Python files as a project.
+        
+        Args:
+            file_paths: List of Python file paths to analyze.
+            
+        Returns:
+            Dictionary containing project-wide analysis results.
+        """
+        project_analysis: dict[str, Any] = {
             "total_files": len(file_paths),
             "files_analyzed": [],
             "project_structure": {
@@ -441,7 +491,7 @@ class CodeExtractor(BaseExtractor):
         for file_path in file_paths:
             if self.can_extract(file_path):
                 try:
-                    result = self.extract_content(file_path)
+                    result: dict[str, Any] = self.extract_content(file_path)
                     if result["success"]:
                         project_analysis["files_analyzed"].append(
                             {
@@ -452,7 +502,7 @@ class CodeExtractor(BaseExtractor):
 
                         # Aggregate project metrics
                         if "basic_structure" in result.get("analysis", {}):
-                            basic = result["analysis"]["basic_structure"]
+                            basic: dict[str, Any] = result["analysis"]["basic_structure"]
                             project_analysis["project_structure"][
                                 "total_functions"
                             ] += len(basic.get("functions", []))
@@ -461,13 +511,13 @@ class CodeExtractor(BaseExtractor):
                             )
 
                         if "content_metrics" in result.get("analysis", {}):
-                            metrics = result["analysis"]["content_metrics"]
+                            metrics: dict[str, Any] = result["analysis"]["content_metrics"]
                             project_analysis["project_structure"]["total_lines"] += (
                                 metrics.get("source_lines", 0)
                             )
 
                         # Check file types
-                        filename = os.path.basename(file_path).lower()
+                        filename: str = os.path.basename(file_path).lower()
                         if "test" in filename:
                             project_analysis["project_structure"]["has_tests"] = True
                         elif filename == "__main__.py":

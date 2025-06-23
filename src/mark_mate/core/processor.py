@@ -4,6 +4,8 @@ MarkMate Core Processor
 Handles the main content extraction and processing logic.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from datetime import datetime
@@ -26,9 +28,9 @@ logger = logging.getLogger(__name__)
 class AssignmentProcessor:
     """Main processor for student assignment content extraction."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the processor with available extractors."""
-        self.extractors = {
+        self.extractors: dict[str, BaseExtractor] = {
             "office": OfficeExtractor(),
             "code": CodeExtractor(),
             "web": WebExtractor(),
@@ -43,19 +45,18 @@ class AssignmentProcessor:
         wordpress: bool = False,
         github_url: Optional[str] = None,
     ) -> dict[str, Any]:
-        """
-        Process a single student submission.
+        """Process a single student submission.
 
         Args:
-            submission_path: Path to the student's submission file/folder
-            student_id: Student identifier
-            wordpress: Enable WordPress-specific processing
-            github_url: Optional GitHub repository URL for analysis
+            submission_path: Path to the student's submission file/folder.
+            student_id: Student identifier.
+            wordpress: Enable WordPress-specific processing.
+            github_url: Optional GitHub repository URL for analysis.
 
         Returns:
-            Dictionary containing extracted content and metadata
+            Dictionary containing extracted content and metadata.
         """
-        result = {
+        result: dict[str, Any] = {
             "student_id": student_id,
             "submission_path": submission_path,
             "processed": False,
@@ -90,7 +91,7 @@ class AssignmentProcessor:
             logger.info(f"Successfully processed submission for student {student_id}")
 
         except Exception as e:
-            error_msg = (
+            error_msg: str = (
                 f"Error processing submission for student {student_id}: {str(e)}"
             )
             logger.error(error_msg)
@@ -101,18 +102,27 @@ class AssignmentProcessor:
     def _process_file(
         self, file_path: str, wordpress: bool, github_url: Optional[str]
     ) -> dict[str, Any]:
-        """Process a single file submission."""
-        content = {}
-        metadata = {"file_types_detected": [], "extractors_used": [], "errors": []}
+        """Process a single file submission.
+        
+        Args:
+            file_path: Path to the file to process.
+            wordpress: Enable WordPress-specific processing.
+            github_url: Optional GitHub repository URL.
+            
+        Returns:
+            Dictionary containing extracted content and metadata.
+        """
+        content: dict[str, Any] = {}
+        metadata: dict[str, list[str]] = {"file_types_detected": [], "extractors_used": [], "errors": []}
 
-        file_type = detect_file_type(file_path)
+        file_type: str = detect_file_type(file_path)
         metadata["file_types_detected"].append(file_type)
 
         # Select appropriate extractor
         extractor = self._get_extractor_for_file_type(file_type)
         if extractor:
             try:
-                extracted = extractor.extract(file_path)
+                extracted = extractor.extract_content(file_path)
                 content.update(extracted)
                 metadata["extractors_used"].append(extractor.__class__.__name__)
             except Exception as e:
@@ -123,7 +133,7 @@ class AssignmentProcessor:
         # GitHub analysis if URL provided
         if github_url:
             try:
-                github_content = self.extractors["github"].extract(github_url)
+                github_content = self.extractors["github"].extract_content(github_url)
                 content["github_analysis"] = github_content
                 metadata["extractors_used"].append("GitHubExtractor")
             except Exception as e:
@@ -136,9 +146,18 @@ class AssignmentProcessor:
     def _process_directory(
         self, dir_path: str, wordpress: bool, github_url: Optional[str]
     ) -> dict[str, Any]:
-        """Process a directory submission."""
-        content = {}
-        metadata = {"file_types_detected": [], "extractors_used": [], "errors": []}
+        """Process a directory submission.
+        
+        Args:
+            dir_path: Path to the directory to process.
+            wordpress: Enable WordPress-specific processing.
+            github_url: Optional GitHub repository URL.
+            
+        Returns:
+            Dictionary containing extracted content and metadata.
+        """
+        content: dict[str, Any] = {}
+        metadata: dict[str, list[str]] = {"file_types_detected": [], "extractors_used": [], "errors": []}
 
         # WordPress-specific processing
         if wordpress:
@@ -160,7 +179,7 @@ class AssignmentProcessor:
                 extractor = self._get_extractor_for_file_type(file_type)
                 if extractor:
                     try:
-                        extracted = extractor.extract(file_path)
+                        extracted = extractor.extract_content(file_path)
                         # Organize by file type
                         if file_type not in content:
                             content[file_type] = []
@@ -187,7 +206,7 @@ class AssignmentProcessor:
         # GitHub analysis if URL provided
         if github_url:
             try:
-                github_content = self.extractors["github"].extract(github_url)
+                github_content = self.extractors["github"].extract_content(github_url)
                 content["github_analysis"] = github_content
                 metadata["extractors_used"].append("GitHubExtractor")
             except Exception as e:

@@ -5,6 +5,8 @@ MarkMate CLI Main Entry Point
 Command-line interface for MarkMate: Your AI Teaching Assistant for Assignments and Assessment
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from typing import Optional
@@ -13,8 +15,12 @@ from . import consolidate, extract, generate_config, grade, scan
 
 
 def create_parser() -> argparse.ArgumentParser:
-    """Create the main argument parser with subcommands."""
-    parser = argparse.ArgumentParser(
+    """Create the main argument parser with subcommands.
+    
+    Returns:
+        Configured ArgumentParser with all subcommands.
+    """
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
         prog="mark-mate",
         description="MarkMate: Your AI Teaching Assistant for Assignments and Assessment",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -49,7 +55,7 @@ For more help on a specific command:
 
     parser.add_argument("--version", action="version", version="MarkMate 0.1.0")
 
-    subparsers = parser.add_subparsers(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser] = parser.add_subparsers(
         dest="command", help="Available commands", metavar="COMMAND"
     )
 
@@ -64,9 +70,16 @@ For more help on a specific command:
 
 
 def main(argv: Optional[list[str]] = None) -> int:
-    """Main CLI entry point."""
-    parser = create_parser()
-    args = parser.parse_args(argv)
+    """Main CLI entry point.
+    
+    Args:
+        argv: Optional command line arguments.
+        
+    Returns:
+        Exit code (0 for success, non-zero for failure).
+    """
+    parser: argparse.ArgumentParser = create_parser()
+    args: argparse.Namespace = parser.parse_args(argv)
 
     if not args.command:
         parser.print_help()

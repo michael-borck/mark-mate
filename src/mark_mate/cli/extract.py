@@ -5,6 +5,8 @@ MarkMate Extract Command
 Extracts and analyzes content from student submissions with comprehensive multi-format support.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
@@ -19,9 +21,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def add_parser(subparsers) -> argparse.ArgumentParser:
-    """Add extract command parser."""
-    parser = subparsers.add_parser(
+def add_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> argparse.ArgumentParser:
+    """Add extract command parser.
+    
+    Args:
+        subparsers: Subparser action to add extract command to.
+        
+    Returns:
+        Configured ArgumentParser for extract command.
+    """
+    parser: argparse.ArgumentParser = subparsers.add_parser(
         "extract",
         help="Extract and analyze content from student submissions",
         description="Processes submissions with multi-format support, GitHub analysis, and WordPress processing",

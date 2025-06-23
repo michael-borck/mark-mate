@@ -5,6 +5,8 @@ Advanced multi-provider grading with statistical aggregation, confidence scoring
 and comprehensive error handling using LiteLLM unified interface.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import re
@@ -23,32 +25,31 @@ logger = logging.getLogger(__name__)
 class EnhancedGradingSystem:
     """Enhanced grading system with multi-run capability and statistical aggregation."""
 
-    def __init__(self, config_path: Optional[str] = None):
-        """
-        Initialize the enhanced grading system.
+    def __init__(self, config_path: Optional[str] = None) -> None:
+        """Initialize the enhanced grading system.
 
         Args:
-            config_path: Path to YAML configuration file
+            config_path: Path to YAML configuration file.
         """
-        self.config_manager = GradingConfigManager()
-        self.config = self.config_manager.load_config(config_path)
-        self.llm_provider = LLMProvider()
+        self.config_manager: GradingConfigManager = GradingConfigManager()
+        self.config: Any = self.config_manager.load_config(config_path)
+        self.llm_provider: LLMProvider = LLMProvider()
 
         # Filter graders by available providers
-        available_providers = self.llm_provider.get_available_providers()
+        available_providers: list[str] = self.llm_provider.get_available_providers()
         self.config = self.config_manager.filter_graders_by_availability(
             self.config, available_providers
         )
 
         # Initialize prompt manager
-        prompt_config = {
+        prompt_config: dict[str, Any] = {
             "prompts": self.config.prompts,
             "prompt_sections": self.config.prompt_sections,
         }
-        self.prompt_manager = PromptManager(prompt_config)
+        self.prompt_manager: PromptManager = PromptManager(prompt_config)
 
         # Session tracking
-        self.session_stats = {
+        self.session_stats: dict[str, Any] = {
             "total_students": 0,
             "successful_grades": 0,
             "failed_grades": 0,
@@ -65,26 +66,25 @@ class EnhancedGradingSystem:
         rubric: Optional[str] = None,
         max_cost_override: Optional[float] = None,
     ) -> dict[str, Any]:
-        """
-        Grade a single student submission using the enhanced multi-grader system.
+        """Grade a single student submission using the enhanced multi-grader system.
 
         Args:
-            student_data: Extracted content and metadata for the student
-            assignment_spec: Assignment specification/requirements
-            rubric: Optional separate rubric
-            max_cost_override: Override the default max cost per student
+            student_data: Extracted content and metadata for the student.
+            assignment_spec: Assignment specification/requirements.
+            rubric: Optional separate rubric.
+            max_cost_override: Override the default max cost per student.
 
         Returns:
-            Dictionary containing comprehensive grading results
+            Dictionary containing comprehensive grading results.
         """
-        student_id = student_data.get("student_id", "unknown")
+        student_id: str = student_data.get("student_id", "unknown")
 
         if not self.session_stats["start_time"]:
             self.session_stats["start_time"] = datetime.now()
 
         logger.info(f"Starting enhanced grading for student {student_id}")
 
-        result = {
+        result: dict[str, Any] = {
             "student_id": student_id,
             "timestamp": datetime.now().isoformat(),
             "config": {
@@ -109,13 +109,13 @@ class EnhancedGradingSystem:
             rubric = self._extract_rubric(assignment_spec)
 
         # Detect assignment type for prompt selection
-        assignment_type = self._detect_assignment_type(student_data)
+        assignment_type: Optional[str] = self._detect_assignment_type(student_data)
 
         # Extract max mark from assignment spec
-        max_mark = self._extract_max_mark(assignment_spec)
+        max_mark: int = self._extract_max_mark(assignment_spec)
 
         # Build grading prompt using PromptManager
-        prompt_data = self.prompt_manager.build_grading_prompt(
+        prompt_data: dict[str, str] = self.prompt_manager.build_grading_prompt(
             student_data=student_data,
             assignment_spec=assignment_spec,
             rubric=rubric,
@@ -124,8 +124,8 @@ class EnhancedGradingSystem:
         )
 
         # Check cost constraints
-        max_cost = max_cost_override or self.config.max_cost_per_student
-        estimated_cost = self._estimate_total_cost(prompt_data["user"])
+        max_cost: float = max_cost_override or self.config.max_cost_per_student
+        estimated_cost: float = self._estimate_total_cost(prompt_data["user"])
 
         if estimated_cost > max_cost:
             logger.warning(
@@ -136,7 +136,7 @@ class EnhancedGradingSystem:
             )
 
         # Process each grader
-        start_time = time.time()
+        start_time: float = time.time()
 
         for grader in self.config.graders:
             grader_result = self._process_grader(
@@ -156,7 +156,7 @@ class EnhancedGradingSystem:
             result["metadata"]["errors"].extend(grader_result["metadata"]["errors"])
 
         # Calculate processing time
-        end_time = time.time()
+        end_time: float = time.time()
         result["metadata"]["processing_time"] = end_time - start_time
 
         # Aggregate results
@@ -187,13 +187,23 @@ class EnhancedGradingSystem:
 
     def _process_grader(
         self,
-        grader: GraderConfig,
+        grader: Any,
         prompt_data: dict[str, str],
         assignment_spec: str,
         max_cost: float,
     ) -> dict[str, Any]:
-        """Process multiple runs for a single grader."""
-        grader_result = {
+        """Process multiple runs for a single grader.
+        
+        Args:
+            grader: Grader configuration object.
+            prompt_data: Prompts for grading.
+            assignment_spec: Assignment specification.
+            max_cost: Maximum allowed cost.
+            
+        Returns:
+            Dictionary containing grader results.
+        """
+        grader_result: dict[str, Any] = {
             "grader_name": grader.name,
             "provider": grader.provider,
             "model": grader.model,
@@ -210,8 +220,8 @@ class EnhancedGradingSystem:
             },
         }
 
-        successful_runs = []
-        total_response_time = 0.0
+        successful_runs: list[dict[str, Any]] = []
+        total_response_time: float = 0.0
 
         for run_number in range(self.config.runs_per_grader):
             # Check cost constraint
@@ -219,7 +229,7 @@ class EnhancedGradingSystem:
                 logger.warning(f"Cost limit reached for {grader.name}, stopping runs")
                 break
 
-            run_result = self._execute_single_run(
+            run_result: dict[str, Any] = self._execute_single_run(
                 grader, prompt_data, run_number + 1, assignment_spec
             )
 
@@ -261,20 +271,30 @@ class EnhancedGradingSystem:
 
     def _execute_single_run(
         self,
-        grader: GraderConfig,
+        grader: Any,
         prompt_data: dict[str, str],
         run_number: int,
         assignment_spec: str,
     ) -> dict[str, Any]:
-        """Execute a single grading run."""
+        """Execute a single grading run.
+        
+        Args:
+            grader: Grader configuration object.
+            prompt_data: Prompts for grading.
+            run_number: Current run number.
+            assignment_spec: Assignment specification.
+            
+        Returns:
+            Dictionary containing run results.
+        """
         try:
             # Add retry logic
             for attempt in range(self.config.retry_attempts):
                 try:
                     # Use system prompt from prompt data if available, otherwise from grader config
-                    system_prompt = prompt_data.get("system") or grader.system_prompt
+                    system_prompt: str = prompt_data.get("system") or grader.system_prompt
 
-                    llm_result = self.llm_provider.grade_submission(
+                    llm_result: dict[str, Any] = self.llm_provider.grade_submission(
                         provider=grader.provider,
                         model=grader.model,
                         prompt=prompt_data["user"],
@@ -287,7 +307,7 @@ class EnhancedGradingSystem:
 
                     if llm_result["success"]:
                         # Parse the grading response
-                        parsed_result = self._parse_grading_response(
+                        parsed_result: dict[str, Any] = self._parse_grading_response(
                             llm_result["content"], assignment_spec
                         )
 
@@ -346,11 +366,20 @@ class EnhancedGradingSystem:
     def _aggregate_grader_runs(
         self, successful_runs: list[dict[str, Any]], assignment_spec: str
     ) -> dict[str, Any]:
-        """Aggregate multiple runs from a single grader."""
-        marks = [run["mark"] for run in successful_runs]
-        feedbacks = [run["feedback"] for run in successful_runs]
+        """Aggregate multiple runs from a single grader.
+        
+        Args:
+            successful_runs: List of successful run results.
+            assignment_spec: Assignment specification.
+            
+        Returns:
+            Dictionary containing aggregated results.
+        """
+        marks: list[float] = [run["mark"] for run in successful_runs]
+        feedbacks: list[str] = [run["feedback"] for run in successful_runs]
 
         # Calculate aggregated mark
+        aggregated_mark: float
         if self.config.averaging_method == "mean":
             aggregated_mark = mean(marks)
         elif self.config.averaging_method == "median":
@@ -358,8 +387,8 @@ class EnhancedGradingSystem:
         elif self.config.averaging_method == "trimmed_mean":
             # Remove highest and lowest, then take mean
             if len(marks) > 2:
-                sorted_marks = sorted(marks)
-                trimmed_marks = sorted_marks[1:-1]
+                sorted_marks: list[float] = sorted(marks)
+                trimmed_marks: list[float] = sorted_marks[1:-1]
                 aggregated_mark = mean(trimmed_marks) if trimmed_marks else mean(marks)
             else:
                 aggregated_mark = mean(marks)
@@ -367,15 +396,16 @@ class EnhancedGradingSystem:
             aggregated_mark = mean(marks)
 
         # Calculate confidence based on consistency
+        confidence: float
         if len(marks) > 1:
-            mark_std = stdev(marks)
-            max_mark = self._extract_max_mark(assignment_spec)
+            mark_std: float = stdev(marks)
+            max_mark: int = self._extract_max_mark(assignment_spec)
             confidence = max(0.1, 1.0 - (mark_std / max_mark))
         else:
             confidence = 0.7  # Lower confidence for single run
 
         # Combine feedback (use most detailed one)
-        primary_feedback = max(feedbacks, key=len)
+        primary_feedback: str = max(feedbacks, key=len)
 
         return {
             "mark": round(aggregated_mark, 1),
@@ -390,10 +420,18 @@ class EnhancedGradingSystem:
     def _aggregate_all_results(
         self, grader_results: dict[str, Any], assignment_spec: str
     ) -> dict[str, Any]:
-        """Aggregate results from all graders."""
+        """Aggregate results from all graders.
+        
+        Args:
+            grader_results: Results from all graders.
+            assignment_spec: Assignment specification.
+            
+        Returns:
+            Dictionary containing final aggregated results.
+        """
         # Extract aggregated results from each grader
-        grader_aggregates = []
-        weights = []
+        grader_aggregates: list[dict[str, Any]] = []
+        weights: list[float] = []
 
         for grader_name, grader_result in grader_results.items():
             if grader_result["metadata"]["successful_runs"] > 0:
@@ -411,36 +449,37 @@ class EnhancedGradingSystem:
             }
 
         # Calculate weighted average
-        marks = [result["mark"] for result in grader_aggregates]
+        marks: list[float] = [result["mark"] for result in grader_aggregates]
 
+        final_mark: float
         if self.config.averaging_method == "weighted_mean":
-            weighted_sum = sum(mark * weight for mark, weight in zip(marks, weights))
-            total_weight = sum(weights)
+            weighted_sum: float = sum(mark * weight for mark, weight in zip(marks, weights))
+            total_weight: float = sum(weights)
             final_mark = weighted_sum / total_weight
         else:
             # Use the same method as individual grader aggregation
             if self.config.averaging_method == "median":
                 final_mark = median(marks)
             elif self.config.averaging_method == "trimmed_mean" and len(marks) > 2:
-                sorted_marks = sorted(marks)
-                trimmed_marks = sorted_marks[1:-1]
+                sorted_marks: list[float] = sorted(marks)
+                trimmed_marks: list[float] = sorted_marks[1:-1]
                 final_mark = mean(trimmed_marks) if trimmed_marks else mean(marks)
             else:
                 final_mark = mean(marks)
 
         # Calculate overall confidence
-        mark_std = stdev(marks) if len(marks) > 1 else 0
-        max_mark = self._extract_max_mark(assignment_spec)
-        base_confidence = max(0.3, 1.0 - (mark_std / max_mark))
+        mark_std: float = stdev(marks) if len(marks) > 1 else 0
+        max_mark: int = self._extract_max_mark(assignment_spec)
+        base_confidence: float = max(0.3, 1.0 - (mark_std / max_mark))
 
         # Boost confidence based on number of successful graders
-        grader_bonus = min(0.2, len(grader_aggregates) * 0.05)
-        final_confidence = min(0.95, base_confidence + grader_bonus)
+        grader_bonus: float = min(0.2, len(grader_aggregates) * 0.05)
+        final_confidence: float = min(0.95, base_confidence + grader_bonus)
 
         # Get primary feedback (from primary_feedback grader if available)
-        primary_feedback = ""
+        primary_feedback: str = ""
         for grader_name, grader_result in grader_results.items():
-            grader_config = next(
+            grader_config: Optional[Any] = next(
                 (g for g in self.config.graders if g.name == grader_name), None
             )
             if (
@@ -472,16 +511,15 @@ class EnhancedGradingSystem:
         }
 
     def _detect_assignment_type(self, student_data: dict[str, Any]) -> Optional[str]:
-        """
-        Detect assignment type based on content for prompt selection.
+        """Detect assignment type based on content for prompt selection.
 
         Args:
-            student_data: Student submission data
+            student_data: Student submission data.
 
         Returns:
-            Assignment type string or None
+            Assignment type string or None.
         """
-        content = student_data.get("content", {})
+        content: dict[str, Any] = student_data.get("content", {})
 
         # Check for WordPress indicators
         if any(key.startswith("wordpress_") for key in content):
@@ -510,9 +548,16 @@ class EnhancedGradingSystem:
         return "general"
 
     def _extract_rubric(self, assignment_spec: str) -> str:
-        """Extract rubric information from assignment specification."""
+        """Extract rubric information from assignment specification.
+        
+        Args:
+            assignment_spec: Assignment specification text.
+            
+        Returns:
+            Extracted rubric text.
+        """
         # Look for common rubric patterns
-        rubric_patterns = [
+        rubric_patterns: list[str] = [
             r"(?i)rubric[:\s]*(.*?)(?=\n\n|\Z)",
             r"(?i)assessment criteria[:\s]*(.*?)(?=\n\n|\Z)",
             r"(?i)marking scheme[:\s]*(.*?)(?=\n\n|\Z)",
@@ -520,7 +565,7 @@ class EnhancedGradingSystem:
         ]
 
         for pattern in rubric_patterns:
-            match = re.search(pattern, assignment_spec, re.DOTALL)
+            match: Optional[re.Match[str]] = re.search(pattern, assignment_spec, re.DOTALL)
             if match:
                 return match.group(1).strip()
 
@@ -528,9 +573,16 @@ class EnhancedGradingSystem:
         return assignment_spec
 
     def _extract_max_mark(self, assignment_spec: str) -> int:
-        """Extract maximum mark from assignment specification."""
+        """Extract maximum mark from assignment specification.
+        
+        Args:
+            assignment_spec: Assignment specification text.
+            
+        Returns:
+            Maximum mark value.
+        """
         # Look for patterns like "Total: 100", "out of 50", "marks: 30"
-        mark_patterns = [
+        mark_patterns: list[str] = [
             r"(?i)total[:\s]*(\d+)",
             r"(?i)out of[:\s]*(\d+)",
             r"(?i)marks?[:\s]*(\d+)",
@@ -538,7 +590,7 @@ class EnhancedGradingSystem:
         ]
 
         for pattern in mark_patterns:
-            match = re.search(pattern, assignment_spec)
+            match: Optional[re.Match[str]] = re.search(pattern, assignment_spec)
             if match:
                 return int(match.group(1))
 
@@ -548,8 +600,16 @@ class EnhancedGradingSystem:
     def _parse_grading_response(
         self, response_text: str, assignment_spec: str
     ) -> dict[str, Any]:
-        """Parse LLM grading response into structured format."""
-        result = {
+        """Parse LLM grading response into structured format.
+        
+        Args:
+            response_text: Raw response text from LLM.
+            assignment_spec: Assignment specification.
+            
+        Returns:
+            Dictionary containing parsed grading results.
+        """
+        result: dict[str, Any] = {
             "mark": 0,
             "feedback": "",
             "max_mark": self._extract_max_mark(assignment_spec),
@@ -562,15 +622,15 @@ class EnhancedGradingSystem:
         # Try to parse as JSON first (new prompt format)
         try:
             # Clean up response to extract JSON
-            response_clean = response_text.strip()
+            response_clean: str = response_text.strip()
 
             # Find JSON in response
-            json_start = response_clean.find("{")
-            json_end = response_clean.rfind("}") + 1
+            json_start: int = response_clean.find("{")
+            json_end: int = response_clean.rfind("}") + 1
 
             if json_start >= 0 and json_end > json_start:
-                json_str = response_clean[json_start:json_end]
-                parsed_json = json.loads(json_str)
+                json_str: str = response_clean[json_start:json_end]
+                parsed_json: dict[str, Any] = json.loads(json_str)
 
                 # Extract fields from JSON
                 result["mark"] = float(parsed_json.get("mark", 0))
@@ -591,14 +651,14 @@ class EnhancedGradingSystem:
 
         # Fallback to legacy text parsing
         # Extract mark
-        mark_match = re.search(
+        mark_match: Optional[re.Match[str]] = re.search(
             r"MARK[:\s]*(\d+(?:\.\d+)?)", response_text, re.IGNORECASE
         )
         if mark_match:
             result["mark"] = float(mark_match.group(1))
 
         # Extract feedback
-        feedback_match = re.search(
+        feedback_match: Optional[re.Match[str]] = re.search(
             r"FEEDBACK[:\s]*(.*?)(?=\n\n|\Z)", response_text, re.IGNORECASE | re.DOTALL
         )
         if feedback_match:
@@ -610,15 +670,22 @@ class EnhancedGradingSystem:
         return result
 
     def _estimate_total_cost(self, prompt: str) -> float:
-        """Estimate total cost for all grading runs."""
-        total_cost = 0.0
+        """Estimate total cost for all grading runs.
+        
+        Args:
+            prompt: Grading prompt text.
+            
+        Returns:
+            Estimated total cost.
+        """
+        total_cost: float = 0.0
 
         # Rough token estimation (characters / 4)
-        input_tokens = len(prompt) // 4
-        output_tokens = 500  # Estimated output
+        input_tokens: int = len(prompt) // 4
+        output_tokens: int = 500  # Estimated output
 
         for grader in self.config.graders:
-            grader_cost = self.llm_provider.estimate_cost(
+            grader_cost: float = self.llm_provider.estimate_cost(
                 grader.provider, grader.model, input_tokens, output_tokens
             )
             total_cost += grader_cost * self.config.runs_per_grader
@@ -626,9 +693,14 @@ class EnhancedGradingSystem:
         return total_cost
 
     def get_session_summary(self) -> dict[str, Any]:
-        """Get summary of the current grading session."""
+        """Get summary of the current grading session.
+        
+        Returns:
+            Dictionary containing session summary statistics.
+        """
         self.session_stats["end_time"] = datetime.now()
 
+        duration_seconds: float
         if self.session_stats["start_time"]:
             duration = self.session_stats["end_time"] - self.session_stats["start_time"]
             duration_seconds = duration.total_seconds()
@@ -636,7 +708,7 @@ class EnhancedGradingSystem:
             duration_seconds = 0
 
         # Get total usage from LLM provider
-        usage_stats = self.llm_provider.get_total_usage()
+        usage_stats: dict[str, Any] = self.llm_provider.get_total_usage()
 
         return {
             "session_stats": self.session_stats,

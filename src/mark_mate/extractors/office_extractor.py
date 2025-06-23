@@ -48,18 +48,32 @@ class OfficeExtractor(BaseExtractor):
         self.supported_extensions = [".pptx", ".xlsx", ".xls", ".csv", ".tsv"]
 
     def can_extract(self, file_path: str) -> bool:
-        """Check if this extractor can handle the given file."""
-        ext = os.path.splitext(file_path)[1].lower()
+        """Check if this extractor can handle the given file.
+        
+        Args:
+            file_path: Path to the file to check.
+            
+        Returns:
+            True if this is a supported office document, False otherwise.
+        """
+        ext: str = os.path.splitext(file_path)[1].lower()
         return ext in self.supported_extensions
 
     def extract_content(self, file_path: str) -> dict[str, Any]:
-        """Extract content from office documents and CSV files."""
+        """Extract content from office documents and CSV files.
+        
+        Args:
+            file_path: Path to the office document to extract.
+            
+        Returns:
+            Dictionary containing extracted content and analysis.
+        """
         if not self.can_extract(file_path):
             return self.create_error_result(
                 file_path, ValueError("Unsupported file type")
             )
 
-        ext = os.path.splitext(file_path)[1].lower()
+        ext: str = os.path.splitext(file_path)[1].lower()
 
         try:
             if ext == ".pptx":
@@ -78,19 +92,26 @@ class OfficeExtractor(BaseExtractor):
             return self.create_error_result(file_path, e)
 
     def _extract_powerpoint(self, file_path: str) -> dict[str, Any]:
-        """Extract content from PowerPoint presentation."""
+        """Extract content from PowerPoint presentation.
+        
+        Args:
+            file_path: Path to the PowerPoint file.
+            
+        Returns:
+            Dictionary containing extracted presentation content.
+        """
         if not PPTX_AVAILABLE:
-            error_msg = "python-pptx not available for PowerPoint extraction"
+            error_msg: str = "python-pptx not available for PowerPoint extraction"
             logger.warning(error_msg)
             return self.create_error_result(file_path, ImportError(error_msg))
 
         try:
             presentation = Presentation(file_path)
-            slides_content = []
-            total_text = ""
+            slides_content: list[dict[str, Any]] = []
+            total_text: str = ""
 
             for i, slide in enumerate(presentation.slides, 1):
-                slide_data = {
+                slide_data: dict[str, Any] = {
                     "slide_number": i,
                     "title": "",
                     "content": "",
@@ -98,7 +119,7 @@ class OfficeExtractor(BaseExtractor):
                 }
 
                 # Extract title and content from shapes
-                slide_text_parts = []
+                slide_text_parts: list[str] = []
                 for shape in slide.shapes:
                     if hasattr(shape, "text") and shape.text.strip():
                         text = shape.text.strip()
@@ -153,9 +174,16 @@ PRESENTATION CONTENT:
             return self.create_error_result(file_path, e)
 
     def _extract_excel(self, file_path: str) -> dict[str, Any]:
-        """Extract content from Excel workbook."""
+        """Extract content from Excel workbook.
+        
+        Args:
+            file_path: Path to the Excel file.
+            
+        Returns:
+            Dictionary containing extracted spreadsheet content.
+        """
         if not OPENPYXL_AVAILABLE:
-            error_msg = "openpyxl not available for Excel extraction"
+            error_msg: str = "openpyxl not available for Excel extraction"
             logger.warning(error_msg)
             return self.create_error_result(file_path, ImportError(error_msg))
 
@@ -167,8 +195,8 @@ PRESENTATION CONTENT:
                     excel_data = pd.read_excel(
                         file_path, sheet_name=None, engine="openpyxl"
                     )
-                    sheets_analysis = {}
-                    total_content = ""
+                    sheets_analysis: dict[str, Any] = {}
+                    total_content: str = ""
 
                     for sheet_name, df in excel_data.items():
                         # Basic data analysis
@@ -286,15 +314,22 @@ WORKBOOK CONTENT:
             return self.create_error_result(file_path, e)
 
     def _extract_csv(self, file_path: str) -> dict[str, Any]:
-        """Extract content from CSV/TSV file."""
+        """Extract content from CSV/TSV file.
+        
+        Args:
+            file_path: Path to the CSV/TSV file.
+            
+        Returns:
+            Dictionary containing extracted CSV content and analysis.
+        """
         try:
             # Detect delimiter
-            delimiter = "\\t" if file_path.lower().endswith(".tsv") else ","
+            delimiter: str = "\\t" if file_path.lower().endswith(".tsv") else ","
 
             # Try to detect encoding and read with pandas if available
-            encodings = ["utf-8", "latin-1", "cp1252"]
+            encodings: list[str] = ["utf-8", "latin-1", "cp1252"]
             df = None
-            used_encoding = None
+            used_encoding: Optional[str] = None
 
             if PANDAS_AVAILABLE:
                 for encoding in encodings:

@@ -7,19 +7,168 @@ This module provides comprehensive web content validation using multiple tools:
 - JavaScript basic syntax and structure checking
 """
 
+from __future__ import annotations
+
 import logging
 import re
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
-# Web parsing imports
+# Web parsing imports - handle optional dependencies
 try:
     import cssutils
     import html5lib
     from bs4 import BeautifulSoup
-
-    WEB_TOOLS_AVAILABLE = True
+    
+    web_tools_available: bool = True
 except ImportError:
-    WEB_TOOLS_AVAILABLE = False
+    cssutils = None  # type: ignore[assignment]
+    html5lib = None  # type: ignore[assignment] 
+    BeautifulSoup = None  # type: ignore[assignment]
+    web_tools_available = False
+
+
+# Type definitions for web validation results
+class HTMLValidationResult(TypedDict):
+    """Structure for HTML5 validation results."""
+    valid: bool
+    errors: List[str]
+    warnings: List[str]
+    total_issues: int
+
+
+class AccessibilityResult(TypedDict):
+    """Structure for accessibility check results."""
+    issues: List[str]
+    warnings: List[str]
+    good_practices: List[str]
+    score: float
+
+
+class BestPracticesResult(TypedDict):
+    """Structure for best practices results."""
+    issues: List[str]
+    warnings: List[str]
+    good_practices: List[str]
+    score: float
+
+
+class SEOResult(TypedDict):
+    """Structure for SEO analysis results."""
+    issues: List[str]
+    warnings: List[str]
+    good_practices: List[str]
+    score: float
+
+
+class HTMLSummaryResult(TypedDict):
+    """Structure for HTML validation summary."""
+    status: str
+    errors: int
+    warnings: int
+    overall_score: float
+    recommendations: List[str]
+
+
+class CSSValidationResult(TypedDict):
+    """Structure for CSS validation results."""
+    valid: bool
+    errors: List[str]
+    warnings: List[str]
+    rules_count: int
+    style_rules: Optional[int]
+    at_rules: Optional[int]
+
+
+class CSSPerformanceResult(TypedDict):
+    """Structure for CSS performance analysis."""
+    issues: List[str]
+    warnings: List[str]
+    good_practices: List[str]
+    metrics: Dict[str, Union[int, float]]
+
+
+class CSSSummaryResult(TypedDict):
+    """Structure for CSS analysis summary."""
+    status: str
+    total_issues: int
+    overall_score: float
+    recommendations: List[str]
+
+
+class JSSyntaxResult(TypedDict):
+    """Structure for JavaScript syntax check results."""
+    issues: List[str]
+    warnings: List[str]
+    score: float
+
+
+class JSStructureResult(TypedDict):
+    """Structure for JavaScript structure analysis."""
+    complexity_estimate: str
+    function_count: int
+    class_count: int
+    estimated_lines_of_code: int
+    has_modules: bool
+    has_async_code: bool
+
+
+class JSSummaryResult(TypedDict):
+    """Structure for JavaScript analysis summary."""
+    quality: str
+    total_issues: int
+    overall_score: float
+    recommendations: List[str]
+
+
+def _ensure_list_field(data: Dict[str, Any], field_name: str) -> List[Any]:
+    """Ensure a dictionary field is a list, converting if necessary.
+    
+    Args:
+        data: Dictionary to check/modify.
+        field_name: Name of the field that should be a list.
+        
+    Returns:
+        The field value as a list.
+    """
+    if field_name not in data:
+        data[field_name] = []
+    elif not isinstance(data[field_name], list):
+        # Convert non-list to single-item list if it has meaningful content
+        if data[field_name] is not None and data[field_name] != "" and data[field_name] != 0:
+            data[field_name] = [data[field_name]]
+        else:
+            data[field_name] = []
+    return data[field_name]
+
+
+def _safe_append(lst: Any, item: Any) -> None:
+    """Safely append to a list-like object.
+    
+    Args:
+        lst: List-like object to append to.
+        item: Item to append.
+    """
+    if isinstance(lst, list):
+        lst.append(item)
+    else:
+        logger.warning(f"Attempted to append to non-list: {type(lst)}")
+
+
+def _safe_len(obj: Any) -> int:
+    """Safely get length of an object, returning 0 for non-sized objects.
+    
+    Args:
+        obj: Object to get length of.
+        
+    Returns:
+        Length of object, or 0 if not applicable.
+    """
+    try:
+        if hasattr(obj, '__len__'):
+            return len(obj)
+        return 0
+    except (TypeError, AttributeError):
+        return 0
 
 logger = logging.getLogger(__name__)
 
@@ -27,43 +176,39 @@ logger = logging.getLogger(__name__)
 class HTMLValidator:
     """HTML validation with accessibility and best practices checking."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
-        """
-        Initialize the HTML validator.
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize the HTML validator.
 
         Args:
-            config: Optional configuration for validation
+            config: Optional configuration for validation.
         """
-        self.config = config or {}
-        self.tools_available = WEB_TOOLS_AVAILABLE
+        self.config: Dict[str, Any] = config or {}
+        self.tools_available: bool = web_tools_available
 
         # Suppress cssutils warnings
-        if self.tools_available:
+        if self.tools_available and cssutils is not None:
             cssutils.log.setLevel(logging.ERROR)
 
         logger.info(
             f"HTML validator initialized (tools available: {self.tools_available})"
         )
 
-    def validate_html(self, file_path: str, html_content: str) -> dict[str, Any]:
-        """
-        Validate HTML content for structure, accessibility, and best practices.
+    def validate_html(self, file_path: str, html_content: str) -> Dict[str, Any]:  # type: ignore[misc] - Complex return structure
+        """Validate HTML content for structure, accessibility, and best practices.
 
         Args:
-            file_path: Path to the HTML file
-            html_content: HTML content to validate
+            file_path: Path to the HTML file.
+            html_content: HTML content to validate.
 
         Returns:
-            Dictionary containing validation results
+            Dictionary containing validation results.
         """
         if not self.tools_available:
             return {"error": "HTML validation tools not available"}
 
-        validation_results = {
+        validation_results: Dict[str, Any] = {
             "file_path": file_path,
-            "validation_timestamp": str(
-                datetime.now() if "datetime" in globals() else "unknown"
-            ),
+            "validation_timestamp": "analyzed",  # Simple timestamp
             "html5_validation": {},
             "accessibility_check": {},
             "best_practices": {},
@@ -75,19 +220,20 @@ class HTMLValidator:
             # Parse HTML with html5lib for strict validation
             validation_results["html5_validation"] = self._validate_html5(html_content)
 
-            # Parse with BeautifulSoup for analysis
-            soup = BeautifulSoup(html_content, "html.parser")
+            # Parse with BeautifulSoup for analysis - only if tools available
+            if BeautifulSoup is not None:
+                soup = BeautifulSoup(html_content, "html.parser")
 
-            # Accessibility analysis
-            validation_results["accessibility_check"] = self._check_accessibility(soup)
+                # Accessibility analysis
+                validation_results["accessibility_check"] = self._check_accessibility(soup)
 
-            # Best practices analysis
-            validation_results["best_practices"] = self._check_best_practices(
-                soup, html_content
-            )
+                # Best practices analysis
+                validation_results["best_practices"] = self._check_best_practices(
+                    soup, html_content
+                )
 
-            # SEO analysis
-            validation_results["seo_analysis"] = self._analyze_seo(soup)
+                # SEO analysis
+                validation_results["seo_analysis"] = self._analyze_seo(soup)
 
             # Generate summary
             validation_results["summary"] = self._generate_html_summary(
@@ -100,60 +246,73 @@ class HTMLValidator:
             logger.error(f"HTML validation failed for {file_path}: {e}")
             return {"error": str(e)}
 
-    def _validate_html5(self, html_content: str) -> dict[str, Any]:
+    def _validate_html5(self, html_content: str) -> Dict[str, Any]:
         """Validate HTML5 structure and syntax."""
         try:
-            # Use html5lib for strict HTML5 parsing
-            parser = html5lib.HTMLParser(strict=True)
-
-            errors = []
-            warnings = []
+            # Initialize validation result with proper types
+            validation_result: Dict[str, Any] = {
+                "valid": True,
+                "errors": [],
+                "warnings": [],
+                "total_issues": 0,
+            }
+            
+            # Ensure list fields are properly typed
+            errors_list = _ensure_list_field(validation_result, "errors")
+            warnings_list = _ensure_list_field(validation_result, "warnings")
 
             try:
-                parser.parse(html_content)
-                # If parsing succeeds without exceptions, check for common issues
-
+                # Use html5lib for strict HTML5 parsing if available
+                if html5lib is not None:
+                    parser = html5lib.HTMLParser(strict=True)
+                    parser.parse(html_content)
+                    
                 # Check document structure
                 if not html_content.strip().lower().startswith("<!doctype"):
-                    warnings.append("Missing DOCTYPE declaration")
+                    _safe_append(warnings_list, "Missing DOCTYPE declaration")
 
-                # Basic structure validation
-                soup = BeautifulSoup(html_content, "html5lib")
-                if not soup.find("html"):
-                    errors.append("Missing <html> element")
-                if not soup.find("head"):
-                    errors.append("Missing <head> element")
-                if not soup.find("body"):
-                    errors.append("Missing <body> element")
+                # Basic structure validation with BeautifulSoup if available
+                if BeautifulSoup is not None:
+                    soup = BeautifulSoup(html_content, "html5lib")
+                    if not soup.find("html"):
+                        _safe_append(errors_list, "Missing <html> element")
+                    if not soup.find("head"):
+                        _safe_append(errors_list, "Missing <head> element")
+                    if not soup.find("body"):
+                        _safe_append(errors_list, "Missing <body> element")
 
             except Exception as parse_error:
-                errors.append(f"HTML5 parsing error: {str(parse_error)}")
+                _safe_append(errors_list, f"HTML5 parsing error: {str(parse_error)}")
 
-            return {
-                "valid": len(errors) == 0,
-                "errors": errors,
-                "warnings": warnings,
-                "total_issues": len(errors) + len(warnings),
-            }
+            # Update validation result
+            validation_result["valid"] = _safe_len(errors_list) == 0
+            validation_result["total_issues"] = _safe_len(errors_list) + _safe_len(warnings_list)
+
+            return validation_result
 
         except Exception as e:
             logger.error(f"HTML5 validation failed: {e}")
             return {"error": str(e)}
 
-    def _check_accessibility(self, soup: BeautifulSoup) -> dict[str, Any]:
+    def _check_accessibility(self, soup: Any) -> Dict[str, Any]:  # type: ignore[misc] - BeautifulSoup typing complex
         """Check accessibility compliance."""
-        accessibility = {"issues": [], "warnings": [], "good_practices": [], "score": 0}
+        accessibility: Dict[str, Any] = {"issues": [], "warnings": [], "good_practices": [], "score": 0}
+        
+        # Ensure list fields are properly typed
+        issues_list = _ensure_list_field(accessibility, "issues")
+        warnings_list = _ensure_list_field(accessibility, "warnings")
+        good_practices_list = _ensure_list_field(accessibility, "good_practices")
 
         try:
             # Image alt text check
             images = soup.find_all("img")
             images_without_alt = [img for img in images if not img.get("alt")]
             if images_without_alt:
-                accessibility["issues"].append(
+                _safe_append(issues_list,
                     f"{len(images_without_alt)} images missing alt attributes"
                 )
             else:
-                accessibility["good_practices"].append("All images have alt attributes")
+                _safe_append(good_practices_list, "All images have alt attributes")
 
             # Form label check
             inputs = soup.find_all(
@@ -166,11 +325,11 @@ class HTMLValidator:
                     inputs_without_labels.append(input_elem)
 
             if inputs_without_labels:
-                accessibility["issues"].append(
+                _safe_append(issues_list,
                     f"{len(inputs_without_labels)} form inputs missing labels"
                 )
             elif inputs:
-                accessibility["good_practices"].append(
+                _safe_append(good_practices_list,
                     "All form inputs have proper labels"
                 )
 
@@ -179,26 +338,26 @@ class HTMLValidator:
             if headings:
                 heading_levels = [int(h.name[1]) for h in headings]
                 if heading_levels and heading_levels[0] != 1:
-                    accessibility["warnings"].append(
+                    _safe_append(warnings_list,
                         "Page should start with h1 heading"
                     )
 
                 # Check for heading level skipping
                 for i in range(1, len(heading_levels)):
                     if heading_levels[i] - heading_levels[i - 1] > 1:
-                        accessibility["warnings"].append(
+                        _safe_append(warnings_list,
                             "Heading levels should not skip (e.g., h2 to h4)"
                         )
                         break
             else:
-                accessibility["warnings"].append("Page has no headings")
+                _safe_append(warnings_list, "Page has no headings")
 
             # Language attribute check
             html_tag = soup.find("html")
             if not html_tag or not html_tag.get("lang"):
-                accessibility["issues"].append("Missing lang attribute on html element")
+                _safe_append(issues_list, "Missing lang attribute on html element")
             else:
-                accessibility["good_practices"].append(
+                _safe_append(good_practices_list,
                     "HTML element has lang attribute"
                 )
 
@@ -207,7 +366,7 @@ class HTMLValidator:
                 attrs={"style": re.compile(r"color\s*:")}
             )
             if elements_with_color:
-                accessibility["warnings"].append(
+                _safe_append(warnings_list,
                     "Inline color styles found - ensure sufficient contrast"
                 )
 
@@ -220,7 +379,7 @@ class HTMLValidator:
                 if link.get_text().lower().strip() in vague_link_texts
             ]
             if vague_links:
-                accessibility["warnings"].append(
+                _safe_append(warnings_list,
                     f"{len(vague_links)} links with vague text (e.g., 'click here')"
                 )
 
@@ -230,8 +389,8 @@ class HTMLValidator:
             warnings_weight = 1
 
             penalty = (
-                len(accessibility["issues"]) * issues_weight
-                + len(accessibility["warnings"]) * warnings_weight
+                _safe_len(issues_list) * issues_weight
+                + _safe_len(warnings_list) * warnings_weight
             )
             max_penalty = total_checks * issues_weight
 
@@ -244,69 +403,74 @@ class HTMLValidator:
             return {"error": str(e)}
 
     def _check_best_practices(
-        self, soup: BeautifulSoup, html_content: str
-    ) -> dict[str, Any]:
+        self, soup: Any, html_content: str  # type: ignore[misc] - BeautifulSoup typing complex
+    ) -> Dict[str, Any]:
         """Check HTML best practices."""
-        best_practices = {
+        best_practices: Dict[str, Any] = {
             "issues": [],
             "warnings": [],
             "good_practices": [],
             "score": 0,
         }
+        
+        # Ensure list fields are properly typed
+        issues_list = _ensure_list_field(best_practices, "issues")
+        warnings_list = _ensure_list_field(best_practices, "warnings")
+        good_practices_list = _ensure_list_field(best_practices, "good_practices")
 
         try:
             # Meta viewport check
             viewport_meta = soup.find("meta", attrs={"name": "viewport"})
             if not viewport_meta:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Missing viewport meta tag for mobile responsiveness"
                 )
             else:
-                best_practices["good_practices"].append("Has viewport meta tag")
+                _safe_append(good_practices_list, "Has viewport meta tag")
 
             # Character encoding check
             charset_meta = soup.find("meta", attrs={"charset": True}) or soup.find(
                 "meta", attrs={"http-equiv": "Content-Type"}
             )
             if not charset_meta:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Missing character encoding declaration"
                 )
             else:
-                best_practices["good_practices"].append(
+                _safe_append(good_practices_list,
                     "Has character encoding declaration"
                 )
 
             # Title tag check
             title = soup.find("title")
             if not title or not title.get_text().strip():
-                best_practices["issues"].append("Missing or empty title tag")
+                _safe_append(issues_list, "Missing or empty title tag")
             elif len(title.get_text()) > 60:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Title tag is too long (>60 characters)"
                 )
             else:
-                best_practices["good_practices"].append("Has appropriate title tag")
+                _safe_append(good_practices_list, "Has appropriate title tag")
 
             # Meta description check
             meta_desc = soup.find("meta", attrs={"name": "description"})
             if not meta_desc:
-                best_practices["warnings"].append("Missing meta description")
+                _safe_append(warnings_list, "Missing meta description")
             elif len(meta_desc.get("content", "")) > 160:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Meta description is too long (>160 characters)"
                 )
             else:
-                best_practices["good_practices"].append("Has meta description")
+                _safe_append(good_practices_list, "Has meta description")
 
             # Semantic HTML check
             semantic_tags = soup.find_all(
                 ["header", "nav", "main", "section", "article", "aside", "footer"]
             )
             if semantic_tags:
-                best_practices["good_practices"].append("Uses semantic HTML5 elements")
+                _safe_append(good_practices_list, "Uses semantic HTML5 elements")
             else:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Consider using semantic HTML5 elements"
                 )
 
@@ -315,14 +479,14 @@ class HTMLValidator:
             external_styles = soup.find_all("link", {"rel": "stylesheet"})
 
             if len(external_scripts) + len(external_styles) > 10:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     "Many external resources - consider bundling"
                 )
 
             # Inline styles check
             elements_with_style = soup.find_all(attrs={"style": True})
             if elements_with_style:
-                best_practices["warnings"].append(
+                _safe_append(warnings_list,
                     f"{len(elements_with_style)} elements with inline styles"
                 )
 
@@ -332,8 +496,8 @@ class HTMLValidator:
             warnings_weight = 1
 
             penalty = (
-                len(best_practices["issues"]) * issues_weight
-                + len(best_practices["warnings"]) * warnings_weight
+                _safe_len(issues_list) * issues_weight
+                + _safe_len(warnings_list) * warnings_weight
             )
             max_penalty = total_checks * issues_weight
 
@@ -345,9 +509,14 @@ class HTMLValidator:
             logger.error(f"Best practices check failed: {e}")
             return {"error": str(e)}
 
-    def _analyze_seo(self, soup: BeautifulSoup) -> dict[str, Any]:
+    def _analyze_seo(self, soup: Any) -> Dict[str, Any]:  # type: ignore[misc] - BeautifulSoup typing complex
         """Analyze SEO-related aspects."""
-        seo = {"issues": [], "warnings": [], "good_practices": [], "score": 0}
+        seo: Dict[str, Any] = {"issues": [], "warnings": [], "good_practices": [], "score": 0}
+        
+        # Ensure list fields are properly typed
+        issues_list = _ensure_list_field(seo, "issues")
+        warnings_list = _ensure_list_field(seo, "warnings")
+        good_practices_list = _ensure_list_field(seo, "good_practices")
 
         try:
             # Title optimization
@@ -355,31 +524,31 @@ class HTMLValidator:
             if title:
                 title_text = title.get_text().strip()
                 if 30 <= len(title_text) <= 60:
-                    seo["good_practices"].append("Title length is optimal")
+                    _safe_append(good_practices_list, "Title length is optimal")
                 elif len(title_text) < 30:
-                    seo["warnings"].append("Title is too short for SEO")
+                    _safe_append(warnings_list, "Title is too short for SEO")
                 else:
-                    seo["warnings"].append("Title is too long for SEO")
+                    _safe_append(warnings_list, "Title is too long for SEO")
 
             # Heading structure for SEO
             h1_tags = soup.find_all("h1")
             if len(h1_tags) == 1:
-                seo["good_practices"].append("Has exactly one H1 tag")
+                _safe_append(good_practices_list, "Has exactly one H1 tag")
             elif len(h1_tags) == 0:
-                seo["issues"].append("Missing H1 tag")
+                _safe_append(issues_list, "Missing H1 tag")
             else:
-                seo["warnings"].append("Multiple H1 tags found")
+                _safe_append(warnings_list, "Multiple H1 tags found")
 
             # Image SEO
             images = soup.find_all("img")
             images_without_alt = [img for img in images if not img.get("alt")]
             if images and not images_without_alt:
-                seo["good_practices"].append("All images have alt attributes for SEO")
+                _safe_append(good_practices_list, "All images have alt attributes for SEO")
 
             # Internal linking
             internal_links = soup.find_all("a", href=re.compile(r"^[^http]"))
             if internal_links:
-                seo["good_practices"].append("Has internal links")
+                _safe_append(good_practices_list, "Has internal links")
 
             # Calculate SEO score
             total_checks = 4
@@ -387,8 +556,8 @@ class HTMLValidator:
             warnings_weight = 1
 
             penalty = (
-                len(seo["issues"]) * issues_weight
-                + len(seo["warnings"]) * warnings_weight
+                _safe_len(issues_list) * issues_weight
+                + _safe_len(warnings_list) * warnings_weight
             )
             max_penalty = total_checks * issues_weight
 
@@ -401,16 +570,19 @@ class HTMLValidator:
             return {"error": str(e)}
 
     def _generate_html_summary(
-        self, validation_results: dict[str, Any]
-    ) -> dict[str, Any]:
+        self, validation_results: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Generate overall HTML validation summary."""
-        summary = {
+        summary: Dict[str, Any] = {
             "status": "unknown",
             "errors": 0,
             "warnings": 0,
             "overall_score": 0,
             "recommendations": [],
         }
+        
+        # Ensure list field is properly typed
+        recommendations_list = _ensure_list_field(summary, "recommendations")
 
         try:
             # Count issues
@@ -425,8 +597,8 @@ class HTMLValidator:
                     and "error" not in validation_results[section]
                 ):
                     section_data = validation_results[section]
-                    summary["errors"] += len(section_data.get("issues", []))
-                    summary["warnings"] += len(section_data.get("warnings", []))
+                    summary["errors"] += _safe_len(section_data.get("issues", []))
+                    summary["warnings"] += _safe_len(section_data.get("warnings", []))
 
             # Calculate overall score
             scores = []
@@ -452,24 +624,24 @@ class HTMLValidator:
 
             # Generate recommendations
             if summary["errors"] > 0:
-                summary["recommendations"].append("Fix HTML validation errors")
+                _safe_append(recommendations_list, "Fix HTML validation errors")
 
             if "accessibility_check" in validation_results:
                 acc_score = validation_results["accessibility_check"].get("score", 0)
                 if acc_score < 80:
-                    summary["recommendations"].append(
+                    _safe_append(recommendations_list,
                         "Improve accessibility compliance"
                     )
 
             if "best_practices" in validation_results:
                 bp_score = validation_results["best_practices"].get("score", 0)
                 if bp_score < 80:
-                    summary["recommendations"].append("Follow HTML best practices")
+                    _safe_append(recommendations_list, "Follow HTML best practices")
 
             if "seo_analysis" in validation_results:
                 seo_score = validation_results["seo_analysis"].get("score", 0)
                 if seo_score < 80:
-                    summary["recommendations"].append("Optimize for search engines")
+                    _safe_append(recommendations_list, "Optimize for search engines")
 
             return summary
 
@@ -481,12 +653,12 @@ class HTMLValidator:
 class CSSAnalyzer:
     """CSS analysis with validation and best practices checking."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the CSS analyzer."""
         self.config = config or {}
-        self.tools_available = WEB_TOOLS_AVAILABLE
+        self.tools_available = web_tools_available
 
-        if self.tools_available:
+        if self.tools_available and cssutils is not None:
             # Configure cssutils to reduce logging
             cssutils.log.setLevel(logging.ERROR)
 
@@ -494,12 +666,12 @@ class CSSAnalyzer:
             f"CSS analyzer initialized (tools available: {self.tools_available})"
         )
 
-    def analyze_css(self, file_path: str, css_content: str) -> dict[str, Any]:
+    def analyze_css(self, file_path: str, css_content: str) -> Dict[str, Any]:  # type: ignore[misc] - Complex return structure
         """Analyze CSS for validation and best practices."""
         if not self.tools_available:
             return {"error": "CSS analysis tools not available"}
 
-        analysis_results = {
+        analysis_results: Dict[str, Any] = {
             "file_path": file_path,
             "validation": {},
             "best_practices": {},
@@ -777,14 +949,14 @@ class CSSAnalyzer:
 class JSAnalyzer:
     """JavaScript basic analysis and structure checking."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the JavaScript analyzer."""
         self.config = config or {}
         logger.info("JavaScript analyzer initialized")
 
-    def analyze_javascript(self, file_path: str, js_content: str) -> dict[str, Any]:
+    def analyze_javascript(self, file_path: str, js_content: str) -> Dict[str, Any]:  # type: ignore[misc] - Complex return structure
         """Analyze JavaScript for basic syntax and best practices."""
-        analysis_results = {
+        analysis_results: Dict[str, Any] = {
             "file_path": file_path,
             "syntax_check": {},
             "best_practices": {},

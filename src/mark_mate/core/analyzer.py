@@ -4,6 +4,8 @@ MarkMate Core Analyzer
 Provides content analysis capabilities and utilities.
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from pathlib import Path
@@ -15,21 +17,20 @@ logger = logging.getLogger(__name__)
 class ContentAnalyzer:
     """Content analysis utilities for MarkMate."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the content analyzer."""
         pass
 
     def analyze_submission_structure(self, submission_path: str) -> dict[str, Any]:
-        """
-        Analyze the structure of a submission.
+        """Analyze the structure of a submission.
 
         Args:
-            submission_path: Path to the submission
+            submission_path: Path to the submission.
 
         Returns:
-            Dictionary containing structure analysis
+            Dictionary containing structure analysis.
         """
-        analysis = {
+        analysis: dict[str, Any] = {
             "path": submission_path,
             "is_file": os.path.isfile(submission_path),
             "is_directory": os.path.isdir(submission_path),
@@ -79,14 +80,13 @@ class ContentAnalyzer:
         return analysis
 
     def detect_assignment_type(self, content: dict[str, Any]) -> str:
-        """
-        Detect the type of assignment based on content.
+        """Detect the type of assignment based on content.
 
         Args:
-            content: Extracted content dictionary
+            content: Extracted content dictionary.
 
         Returns:
-            Detected assignment type
+            Detected assignment type.
         """
         # Check for WordPress indicators
         if any(key.startswith("wordpress_") for key in content):
@@ -97,7 +97,7 @@ class ContentAnalyzer:
             return "programming_with_git"
 
         # Check for code files
-        code_extensions = {
+        code_extensions: set[str] = {
             ".py",
             ".js",
             ".html",
@@ -108,18 +108,20 @@ class ContentAnalyzer:
             ".json",
         }
         if "code" in content or any(
-            any(file.get("filename", "").endswith(ext) for ext in code_extensions)
+            any(file_item.get("filename", "").endswith(ext) for ext in code_extensions)
             for file_list in content.values()
             if isinstance(file_list, list)
+            for file_item in file_list
         ):
             return "programming"
 
         # Check for web files
-        web_extensions = {".html", ".css", ".js"}
+        web_extensions: set[str] = {".html", ".css", ".js"}
         if "web" in content or any(
-            any(file.get("filename", "").endswith(ext) for ext in web_extensions)
+            any(file_item.get("filename", "").endswith(ext) for ext in web_extensions)
             for file_list in content.values()
             if isinstance(file_list, list)
+            for file_item in file_list
         ):
             return "web_development"
 
@@ -134,16 +136,15 @@ class ContentAnalyzer:
     def analyze_code_quality(
         self, code_content: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        """
-        Analyze code quality metrics.
+        """Analyze code quality metrics.
 
         Args:
-            code_content: List of code files with their content
+            code_content: List of code files with their content.
 
         Returns:
-            Code quality analysis
+            Code quality analysis.
         """
-        analysis = {
+        analysis: dict[str, Any] = {
             "total_files": len(code_content),
             "total_lines": 0,
             "languages": set(),
@@ -212,16 +213,15 @@ class ContentAnalyzer:
     def analyze_github_patterns(
         self, github_analysis: dict[str, Any]
     ) -> dict[str, Any]:
-        """
-        Analyze GitHub development patterns.
+        """Analyze GitHub development patterns.
 
         Args:
-            github_analysis: GitHub analysis data
+            github_analysis: GitHub analysis data.
 
         Returns:
-            Development pattern analysis
+            Development pattern analysis.
         """
-        patterns = {
+        patterns: dict[str, Any] = {
             "development_style": "unknown",
             "consistency": "unknown",
             "collaboration": "unknown",
@@ -229,12 +229,12 @@ class ContentAnalyzer:
             "concerns": [],
         }
 
-        commits = github_analysis.get("total_commits", 0)
-        span_days = github_analysis.get("development_span_days", 0)
+        commits: int = github_analysis.get("total_commits", 0)
+        span_days: int = github_analysis.get("development_span_days", 0)
 
         # Analyze development style
         if span_days > 0:
-            commits_per_day = commits / span_days
+            commits_per_day: float = commits / span_days
             if commits_per_day > 2:
                 patterns["development_style"] = "intensive"
             elif commits_per_day > 0.5:
@@ -275,48 +275,47 @@ class ContentAnalyzer:
     def generate_submission_summary(
         self, content: dict[str, Any], metadata: dict[str, Any]
     ) -> str:
-        """
-        Generate a human-readable summary of the submission.
+        """Generate a human-readable summary of the submission.
 
         Args:
-            content: Extracted content
-            metadata: Processing metadata
+            content: Extracted content.
+            metadata: Processing metadata.
 
         Returns:
-            Summary string
+            Summary string.
         """
-        summary_parts = []
+        summary_parts: list[str] = []
 
         # Assignment type
-        assignment_type = self.detect_assignment_type(content)
+        assignment_type: str = self.detect_assignment_type(content)
         summary_parts.append(
             f"Assignment Type: {assignment_type.replace('_', ' ').title()}"
         )
 
         # File statistics
-        file_types = metadata.get("file_types_detected", [])
+        file_types: list[str] = metadata.get("file_types_detected", [])
         if file_types:
             summary_parts.append(f"File Types: {', '.join(file_types)}")
 
         # Content summary
         if "documents" in content:
-            doc_count = len(content["documents"])
+            doc_count: int = len(content["documents"])
             summary_parts.append(f"Documents: {doc_count} file(s)")
 
         if "code" in content:
-            code_analysis = self.analyze_code_quality(content["code"])
+            code_analysis: dict[str, Any] = self.analyze_code_quality(content["code"])
             summary_parts.append(
                 f"Code: {code_analysis['total_files']} file(s), {code_analysis['total_lines']} lines"
             )
 
         if "github_analysis" in content:
-            github = content["github_analysis"]
-            commits = github.get("total_commits", 0)
-            span = github.get("development_span_days", 0)
+            github: dict[str, Any] = content["github_analysis"]
+            commits: int = github.get("total_commits", 0)
+            span: int = github.get("development_span_days", 0)
             summary_parts.append(f"GitHub: {commits} commits over {span} days")
 
         if any(key.startswith("wordpress_") for key in content):
-            wp_components = [
+            wp_components: list[str] = [
                 key.replace("wordpress_", "")
                 for key in content
                 if key.startswith("wordpress_")
@@ -324,11 +323,11 @@ class ContentAnalyzer:
             summary_parts.append(f"WordPress: {', '.join(wp_components)} components")
 
         # Processing info
-        extractors = metadata.get("extractors_used", [])
+        extractors: list[str] = metadata.get("extractors_used", [])
         if extractors:
             summary_parts.append(f"Processed with: {', '.join(extractors)}")
 
-        errors = metadata.get("errors", [])
+        errors: list[str] = metadata.get("errors", [])
         if errors:
             summary_parts.append(f"Processing errors: {len(errors)}")
 

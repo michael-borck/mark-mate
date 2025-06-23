@@ -1,9 +1,10 @@
-"""
-MarkMate Unified LLM Provider Interface
+"""MarkMate Unified LLM Provider Interface.
 
 Provides a unified interface for multiple LLM providers using LiteLLM.
 Supports Claude (Anthropic), OpenAI, and Gemini with consistent API.
 """
+
+from __future__ import annotations
 
 import logging
 import os
@@ -13,11 +14,16 @@ from typing import Any, Optional
 
 try:
     import litellm
-    from litellm import completion, completion_cost
+    from litellm import completion
+    from litellm.cost_calculator import completion_cost
 
-    LITELLM_AVAILABLE = True
+    _litellm_available = True
 except ImportError:
-    LITELLM_AVAILABLE = False
+    _litellm_available = False
+    # Define dummy functions for type checking
+    litellm = None  # type: ignore[assignment]
+    completion = None  # type: ignore[assignment] 
+    completion_cost = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +32,7 @@ class LLMProvider:
     """Unified LLM provider using LiteLLM for consistent API across providers."""
 
     # Supported provider configurations
-    PROVIDER_CONFIGS = {
+    PROVIDER_CONFIGS: dict[str, dict[str, str]] = {
         "anthropic": {
             "claude-3-5-sonnet": "claude-3-5-sonnet-20241022",
             "claude-3-sonnet": "claude-3-sonnet-20240229",
@@ -45,31 +51,36 @@ class LLMProvider:
         },
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the unified LLM provider."""
-        if not LITELLM_AVAILABLE:
+        if not _litellm_available:
             raise ImportError(
                 "LiteLLM is required but not available. Install with: pip install litellm"
             )
 
         # Configure LiteLLM
-        litellm.set_verbose = False  # Set to True for debugging
+        if litellm is not None:
+            litellm.set_verbose = False  # Set to True for debugging
 
         # Token usage tracking
-        self.token_usage = {
+        self.token_usage: dict[str, dict[str, float]] = {
             "anthropic": {"input_tokens": 0, "output_tokens": 0, "cost": 0.0},
             "openai": {"input_tokens": 0, "output_tokens": 0, "cost": 0.0},
             "gemini": {"input_tokens": 0, "output_tokens": 0, "cost": 0.0},
         }
 
         # Rate limiting tracking
-        self.last_request_time = {}
+        self.last_request_time: dict[str, float] = {}
 
         # Validate API keys
-        self._validate_api_keys()
+        _ = self._validate_api_keys()
 
     def _validate_api_keys(self) -> dict[str, bool]:
-        """Validate which providers have API keys available."""
+        """Validate which providers have API keys available.
+        
+        Returns:
+            Dictionary mapping provider names to availability status.
+        """
         providers_available = {
             "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
             "openai": bool(os.getenv("OPENAI_API_KEY")),
@@ -82,7 +93,18 @@ class LLMProvider:
         return providers_available
 
     def get_model_name(self, provider: str, model_short_name: str) -> str:
-        """Get the full model name for LiteLLM from provider and short name."""
+        """Get the full model name for LiteLLM from provider and short name.
+        
+        Args:
+            provider: Provider name (anthropic, openai, gemini).
+            model_short_name: Short model name.
+            
+        Returns:
+            Full model name for LiteLLM.
+            
+        Raises:
+            ValueError: If provider or model is not supported.
+        """
         if provider not in self.PROVIDER_CONFIGS:
             raise ValueError(f"Unsupported provider: {provider}")
 
@@ -93,8 +115,13 @@ class LLMProvider:
 
         return self.PROVIDER_CONFIGS[provider][model_short_name]
 
-    def _respect_rate_limit(self, provider: str, rate_limit: Optional[int] = None):
-        """Ensure rate limits are respected for the provider."""
+    def _respect_rate_limit(self, provider: str, rate_limit: Optional[int] = None) -> None:
+        """Ensure rate limits are respected for the provider.
+        
+        Args:
+            provider: Provider name.
+            rate_limit: Requests per minute limit.
+        """
         if not rate_limit:
             return
 
@@ -123,21 +150,20 @@ class LLMProvider:
         rate_limit: Optional[int] = None,
         timeout: int = 60,
     ) -> dict[str, Any]:
-        """
-        Grade a submission using the specified provider and model.
+        """Grade a submission using the specified provider and model.
 
         Args:
-            provider: Provider name (anthropic, openai, gemini)
-            model: Model short name (e.g., 'claude-3-5-sonnet', 'gpt-4o', 'gemini-pro')
-            prompt: The grading prompt
-            system_prompt: Optional system prompt (for providers that support it)
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens in response
-            rate_limit: Requests per minute limit
-            timeout: Request timeout in seconds
+            provider: Provider name (anthropic, openai, gemini).
+            model: Model short name (e.g., 'claude-3-5-sonnet', 'gpt-4o', 'gemini-pro').
+            prompt: The grading prompt.
+            system_prompt: Optional system prompt (for providers that support it).
+            temperature: Sampling temperature.
+            max_tokens: Maximum tokens in response.
+            rate_limit: Requests per minute limit.
+            timeout: Request timeout in seconds.
 
         Returns:
-            Dictionary containing response, token usage, and metadata
+            Dictionary containing response, token usage, and metadata.
         """
         # Respect rate limits
         self._respect_rate_limit(provider, rate_limit)
@@ -146,7 +172,7 @@ class LLMProvider:
         full_model_name = self.get_model_name(provider, model)
 
         # Prepare messages
-        messages = []
+        messages: list[dict[str, str]] = []
         if system_prompt and provider in ["openai", "anthropic"]:
             messages.append({"role": "system", "content": system_prompt})
 
@@ -160,6 +186,9 @@ class LLMProvider:
             start_time = time.time()
 
             # Make the API call using LiteLLM
+            if completion is None:
+                raise RuntimeError("LiteLLM completion function not available")
+                
             response = completion(
                 model=full_model_name,
                 messages=messages,
@@ -187,8 +216,11 @@ class LLMProvider:
 
             # Calculate cost using LiteLLM
             try:
-                cost = completion_cost(completion_response=response)
-                usage_info["cost"] = cost
+                if completion_cost is not None:
+                    cost = completion_cost(completion_response=response)
+                    usage_info["cost"] = cost
+                else:
+                    usage_info["cost"] = 0.0
             except Exception as e:
                 logger.warning(f"Could not calculate cost for {provider}: {e}")
                 usage_info["cost"] = 0.0
@@ -221,14 +253,25 @@ class LLMProvider:
             }
 
     def get_available_providers(self) -> list[str]:
-        """Get list of providers with valid API keys."""
+        """Get list of providers with valid API keys.
+        
+        Returns:
+            List of provider names that have valid API keys.
+        """
         available = self._validate_api_keys()
         return [
             provider for provider, is_available in available.items() if is_available
         ]
 
     def get_provider_models(self, provider: str) -> list[str]:
-        """Get available models for a provider."""
+        """Get available models for a provider.
+        
+        Args:
+            provider: Provider name.
+            
+        Returns:
+            List of available model names for the provider.
+        """
         if provider not in self.PROVIDER_CONFIGS:
             return []
         return list(self.PROVIDER_CONFIGS[provider].keys())
@@ -236,8 +279,18 @@ class LLMProvider:
     def estimate_cost(
         self, provider: str, model: str, input_tokens: int, output_tokens: int
     ) -> float:
-        """Estimate cost for a request (approximate)."""
-        self.get_model_name(provider, model)
+        """Estimate cost for a request (approximate).
+        
+        Args:
+            provider: Provider name.
+            model: Model name.
+            input_tokens: Number of input tokens.
+            output_tokens: Number of output tokens.
+            
+        Returns:
+            Estimated cost in USD.
+        """
+        _ = self.get_model_name(provider, model)
 
         try:
             # Use LiteLLM's cost calculation (requires actual response object)
@@ -276,7 +329,11 @@ class LLMProvider:
             return 0.0
 
     def get_total_usage(self) -> dict[str, Any]:
-        """Get total token usage and cost across all providers."""
+        """Get total token usage and cost across all providers.
+        
+        Returns:
+            Dictionary containing total usage statistics.
+        """
         total_input = sum(usage["input_tokens"] for usage in self.token_usage.values())
         total_output = sum(
             usage["output_tokens"] for usage in self.token_usage.values()
@@ -291,7 +348,7 @@ class LLMProvider:
             "by_provider": self.token_usage,
         }
 
-    def reset_usage_tracking(self):
+    def reset_usage_tracking(self) -> None:
         """Reset token usage tracking."""
         for provider in self.token_usage:
             self.token_usage[provider] = {

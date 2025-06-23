@@ -1,10 +1,11 @@
-"""
-GitHub repository extractor for analyzing student GitHub repositories.
+"""GitHub repository extractor for analyzing student GitHub repositories.
 
 This module handles extraction and analysis of GitHub repositories,
 providing detailed repository quality assessment, commit analysis, and
 development pattern evaluation.
 """
+
+from __future__ import annotations
 
 import logging
 import os
@@ -23,13 +24,13 @@ logger = logging.getLogger(__name__)
 class GitHubExtractor(BaseExtractor):
     """Extractor for GitHub repository analysis."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
         super().__init__(config)
-        self.extractor_name = "github_extractor"
-        self.supported_protocols = ["https", "http", "git"]
+        self.extractor_name: str = "github_extractor"
+        self.supported_protocols: list[str] = ["https", "http", "git"]
 
         # Check if git is available
-        self.git_available = self._check_git_availability()
+        self.git_available: bool = self._check_git_availability()
         if not self.git_available:
             logger.warning("Git is not available - GitHub analysis will be limited")
 
@@ -44,12 +45,19 @@ class GitHubExtractor(BaseExtractor):
             return False
 
     def can_extract(self, repo_url: str) -> bool:
-        """Check if this extractor can handle the given repository URL."""
+        """Check if this extractor can handle the given repository URL.
+        
+        Args:
+            repo_url: GitHub repository URL to check.
+            
+        Returns:
+            True if this is a valid GitHub URL and git is available, False otherwise.
+        """
         if not self.git_available:
             return False
 
         # Basic GitHub URL validation
-        github_patterns = [
+        github_patterns: list[str] = [
             r"https://github\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+",
             r"http://github\.com/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+",
             r"git@github\.com:[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+\.git",
@@ -58,7 +66,14 @@ class GitHubExtractor(BaseExtractor):
         return any(re.match(pattern, repo_url) for pattern in github_patterns)
 
     def extract_content(self, repo_url: str) -> dict[str, Any]:
-        """Extract content and perform analysis on GitHub repository."""
+        """Extract content and perform analysis on GitHub repository.
+        
+        Args:
+            repo_url: GitHub repository URL to analyze.
+            
+        Returns:
+            Dictionary containing extracted repository analysis.
+        """
         if not self.can_extract(repo_url):
             return self.create_error_result(
                 repo_url, ValueError("Invalid GitHub repository URL")
@@ -71,11 +86,11 @@ class GitHubExtractor(BaseExtractor):
 
         try:
             # Analyze repository
-            analysis_result = self._analyze_repository(repo_url)
+            analysis_result: dict[str, Any] = self._analyze_repository(repo_url)
 
             if analysis_result["success"]:
                 # Create comprehensive content text
-                content_text = self._create_content_text(
+                content_text: str = self._create_content_text(
                     repo_url, analysis_result["analysis"]
                 )
 
@@ -92,19 +107,26 @@ class GitHubExtractor(BaseExtractor):
             return self.create_error_result(repo_url, e)
 
     def _analyze_repository(self, repo_url: str) -> dict[str, Any]:
-        """Analyze GitHub repository."""
+        """Analyze GitHub repository.
+        
+        Args:
+            repo_url: GitHub repository URL to analyze.
+            
+        Returns:
+            Dictionary containing success status and analysis results.
+        """
         try:
             with tempfile.TemporaryDirectory() as temp_dir:
-                repo_path = os.path.join(temp_dir, "repo")
+                repo_path: str = os.path.join(temp_dir, "repo")
 
                 # Clone repository (shallow clone for efficiency)
-                clone_success = self._clone_repository(repo_url, repo_path)
+                clone_success: bool = self._clone_repository(repo_url, repo_path)
 
                 if not clone_success:
                     return {"success": False, "error": "Failed to clone repository"}
 
                 # Perform various analyses
-                analysis = {
+                analysis: dict[str, Any] = {
                     "repository_url": repo_url,
                     "clone_success": True,
                     "commit_analysis": self._analyze_commits(repo_path),
@@ -123,10 +145,18 @@ class GitHubExtractor(BaseExtractor):
             return {"success": False, "error": str(e)}
 
     def _clone_repository(self, repo_url: str, clone_path: str) -> bool:
-        """Clone repository with shallow clone for efficiency."""
+        """Clone repository with shallow clone for efficiency.
+        
+        Args:
+            repo_url: GitHub repository URL to clone.
+            clone_path: Local path where repository should be cloned.
+            
+        Returns:
+            True if clone was successful, False otherwise.
+        """
         try:
             # Use shallow clone with depth 50 to get recent history
-            cmd = [
+            cmd: list[str] = [
                 "git",
                 "clone",
                 "--depth",
@@ -136,7 +166,7 @@ class GitHubExtractor(BaseExtractor):
                 clone_path,
             ]
 
-            result = subprocess.run(
+            result: subprocess.CompletedProcess[str] = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
@@ -158,10 +188,17 @@ class GitHubExtractor(BaseExtractor):
             return False
 
     def _analyze_commits(self, repo_path: str) -> dict[str, Any]:
-        """Analyze commit history and patterns."""
+        """Analyze commit history and patterns.
+        
+        Args:
+            repo_path: Path to the cloned repository.
+            
+        Returns:
+            Dictionary containing commit analysis results.
+        """
         try:
             # Get commit information
-            cmd = [
+            cmd: list[str] = [
                 "git",
                 "-C",
                 repo_path,
@@ -170,15 +207,15 @@ class GitHubExtractor(BaseExtractor):
                 "--date=iso",
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result: subprocess.CompletedProcess[str] = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
 
             if result.returncode != 0:
                 return {"error": "Failed to get commit history"}
 
-            commits = []
+            commits: list[dict[str, str]] = []
             for line in result.stdout.strip().split("\n"):
                 if line:
-                    parts = line.split("|", 4)
+                    parts: list[str] = line.split("|", 4)
                     if len(parts) == 5:
                         commits.append(
                             {
@@ -200,13 +237,20 @@ class GitHubExtractor(BaseExtractor):
             logger.error(f"Commit analysis failed: {e}")
             return {"error": str(e)}
 
-    def _analyze_commit_patterns(self, commits: list[dict]) -> dict[str, Any]:
-        """Analyze patterns in commit history."""
+    def _analyze_commit_patterns(self, commits: list[dict[str, str]]) -> dict[str, Any]:
+        """Analyze patterns in commit history.
+        
+        Args:
+            commits: List of commit information dictionaries.
+            
+        Returns:
+            Dictionary containing commit pattern analysis.
+        """
         if not commits:
             return {"error": "No commits to analyze"}
 
         # Parse commit dates
-        commit_dates = []
+        commit_dates: list[datetime] = []
         for commit in commits:
             try:
                 # Parse ISO date format
@@ -262,18 +306,18 @@ class GitHubExtractor(BaseExtractor):
             "authors": self._analyze_authors(commits),
         }
 
-    def _analyze_commit_message_quality(self, commits: list[dict]) -> dict[str, Any]:
+    def _analyze_commit_message_quality(self, commits: list[dict[str, str]]) -> dict[str, Any]:
         """Analyze quality of commit messages."""
-        messages = [commit["message"] for commit in commits]
+        messages: list[str] = [commit["message"] for commit in commits]
 
         if not messages:
             return {"score": 0, "analysis": "No commit messages"}
 
         # Quality metrics
-        total_messages = len(messages)
+        total_messages: int = len(messages)
 
         # Length analysis
-        lengths = [len(msg) for msg in messages]
+        lengths: list[int] = [len(msg) for msg in messages]
         avg_length = sum(lengths) / len(lengths)
 
         # Quality indicators
@@ -373,7 +417,7 @@ class GitHubExtractor(BaseExtractor):
 
         return sorted(peak_hours)
 
-    def _analyze_authors(self, commits: list[dict]) -> dict[str, Any]:
+    def _analyze_authors(self, commits: list[dict[str, str]]) -> dict[str, Any]:
         """Analyze commit authors."""
         authors = defaultdict(int)
         emails = set()

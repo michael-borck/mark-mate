@@ -1,9 +1,10 @@
-"""
-Base extractor class for the content extraction system.
+"""Base extractor class for the content extraction system.
 
 This module provides the abstract base class that all extractors should inherit from,
 ensuring consistent interface and behavior across different file type extractors.
 """
+
+from __future__ import annotations
 
 import logging
 import os
@@ -16,55 +17,51 @@ logger = logging.getLogger(__name__)
 class BaseExtractor(ABC):
     """Abstract base class for all content extractors."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
-        """
-        Initialize the extractor.
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
+        """Initialize the extractor.
 
         Args:
-            config: Optional configuration dictionary for extractor settings
+            config: Optional configuration dictionary for extractor settings.
         """
-        self.config = config or {}
+        self.config: dict[str, Any] = config or {}
         self.supported_extensions: list[str] = []
         self.extractor_name: str = ""
 
     @abstractmethod
     def can_extract(self, file_path: str) -> bool:
-        """
-        Check if this extractor can handle the given file.
+        """Check if this extractor can handle the given file.
 
         Args:
-            file_path: Path to the file to check
+            file_path: Path to the file to check.
 
         Returns:
-            True if this extractor can handle the file, False otherwise
+            True if this extractor can handle the file, False otherwise.
         """
         pass
 
     @abstractmethod
     def extract_content(self, file_path: str) -> dict[str, Any]:
-        """
-        Extract content from the specified file.
+        """Extract content from the specified file.
 
         Args:
-            file_path: Path to the file to extract content from
+            file_path: Path to the file to extract content from.
 
         Returns:
-            Dictionary containing extracted content and metadata
+            Dictionary containing extracted content and metadata.
         """
         pass
 
     def get_file_info(self, file_path: str) -> dict[str, Any]:
-        """
-        Get basic file information.
+        """Get basic file information.
 
         Args:
-            file_path: Path to the file
+            file_path: Path to the file.
 
         Returns:
-            Dictionary containing file metadata
+            Dictionary containing file metadata.
         """
         try:
-            stat = os.stat(file_path)
+            stat: os.stat_result = os.stat(file_path)
             return {
                 "filename": os.path.basename(file_path),
                 "size": stat.st_size,
@@ -82,15 +79,14 @@ class BaseExtractor(ABC):
             }
 
     def create_error_result(self, file_path: str, error: Exception) -> dict[str, Any]:
-        """
-        Create a standardized error result.
+        """Create a standardized error result.
 
         Args:
-            file_path: Path to the file that caused the error
-            error: The exception that occurred
+            file_path: Path to the file that caused the error.
+            error: The exception that occurred.
 
         Returns:
-            Standardized error result dictionary
+            Standardized error result dictionary.
         """
         return {
             "success": False,
@@ -103,16 +99,15 @@ class BaseExtractor(ABC):
     def create_success_result(
         self, file_path: str, content: str, analysis: Optional[dict[str, Any]] = None
     ) -> dict[str, Any]:
-        """
-        Create a standardized success result.
+        """Create a standardized success result.
 
         Args:
-            file_path: Path to the successfully processed file
-            content: Extracted text content
-            analysis: Optional analysis results
+            file_path: Path to the successfully processed file.
+            content: Extracted text content.
+            analysis: Optional analysis results.
 
         Returns:
-            Standardized success result dictionary
+            Standardized success result dictionary.
         """
         return {
             "success": True,
