@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mark-mate"
-version = "0.1.0"
+version = "0.1.2"
 description = "Your AI Teaching Assistant for Assignments and Assessment"
 readme = "README.md"
 license = {text = "MIT"}
@@ -49,6 +49,10 @@ dependencies = [
     "pyyaml>=6.0.1",
     # Data validation and serialization
     "pydantic>=2.0.0",
+    # GUI framework
+    "flet>=0.21.0",
+    # Visualization for GUI
+    "matplotlib>=3.7.0",
 ]
 
 [project.optional-dependencies]
@@ -73,6 +77,7 @@ Repository = "https://github.com/markmate-ai/mark-mate"
 
 [project.scripts]
 mark-mate = "mark_mate.cli.main:main"
+mark-mate-gui = "mark_mate.gui.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -181,4 +186,10 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
+]
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "twine>=6.1.0",
 ]

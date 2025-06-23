@@ -15,7 +15,22 @@ A comprehensive system for processing, consolidating, and grading student submis
 pip install mark-mate
 ```
 
-### Basic Usage
+### GUI Application (Recommended)
+
+Launch the cross-platform desktop application:
+
+```bash
+mark-mate-gui
+```
+
+The GUI provides an intuitive interface for all MarkMate functionality with:
+- **Visual workflow navigation** between consolidate → scan → extract → grade
+- **Progress tracking** for long-running operations  
+- **Interactive configuration** builder for grading settings
+- **Real-time status updates** and error handling
+- **Cross-platform support** (Windows, macOS, Linux)
+
+### CLI Usage
 
 ```bash
 # Consolidate submissions
@@ -44,7 +59,7 @@ export GEMINI_API_KEY="your_gemini_key"  # or GOOGLE_API_KEY
 
 ## 📋 System Overview
 
-MarkMate consists of four main components accessible via CLI or Python API:
+MarkMate consists of four main components accessible via **GUI**, **CLI**, or **Python API**:
 
 ### 1. **Consolidate** - File organization and filtering
 - Groups files by student ID with intelligent pattern matching
@@ -76,6 +91,7 @@ MarkMate consists of four main components accessible via CLI or Python API:
 
 ## 🌟 Key Features
 
+- **Cross-Platform Desktop GUI**: Native desktop application powered by Flutter for Windows, macOS, and Linux
 - **Multi-Format Support**: PDF, DOCX, TXT, MD, Jupyter notebooks, Python code, web files (HTML/CSS/JS), React/TypeScript projects
 - **GitHub Repository Analysis**: Commit history, development patterns, repository quality assessment
 - **Enhanced Encoding Support**: Optimized for ESL students with automatic encoding detection (UTF-8, UTF-16, CP1252, Latin-1, and more)
