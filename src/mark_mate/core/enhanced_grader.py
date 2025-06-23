@@ -353,6 +353,17 @@ class EnhancedGradingSystem:
                         logger.warning(f"Attempt {attempt + 1} failed, retrying: {e}")
                         time.sleep(2**attempt)
 
+            # If we reach here, all retry attempts were exhausted without success
+            logger.error(f"All retry attempts exhausted for {grader.name} run {run_number}")
+            return {
+                "run_number": run_number,
+                "attempt": self.config.retry_attempts,
+                "success": False,
+                "error": "All retry attempts exhausted",
+                "cost": 0.0,
+                "timestamp": datetime.now().isoformat(),
+            }
+
         except Exception as e:
             logger.error(f"Unexpected error in {grader.name} run {run_number}: {e}")
             return {

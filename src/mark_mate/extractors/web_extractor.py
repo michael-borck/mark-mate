@@ -13,6 +13,16 @@ import re
 from typing import Any, Optional, TypedDict, Union
 
 from .base_extractor import BaseExtractor
+from .models import ExtractionResult
+
+# Enhanced encoding support for international web files
+try:
+    from mark_mate.utils.encoding_utils import safe_read_text_file, create_encoding_error_message
+    encoding_utils_available = True
+except ImportError:
+    safe_read_text_file = None  # type: ignore[assignment]
+    create_encoding_error_message = None  # type: ignore[assignment]
+    encoding_utils_available = False
 
 # Web validation imports with proper type handling
 try:
@@ -152,7 +162,7 @@ class WebExtractor(BaseExtractor):
         ext = os.path.splitext(file_path)[1].lower()
         return ext in self.supported_extensions
 
-    def extract_content(self, file_path: str) -> dict[str, Any]:  # type: ignore
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content and perform validation on web files."""
         if not self.can_extract(file_path):
             return self.create_error_result(
@@ -160,27 +170,62 @@ class WebExtractor(BaseExtractor):
             )
 
         try:
-            # Read source code
-            with open(file_path, encoding="utf-8", errors="ignore") as f:
-                source_code = f.read()
+            # Enhanced encoding support for international web files
+            source_code: Optional[str] = None
+            encoding_used: Optional[str] = None
+            
+            if encoding_utils_available and safe_read_text_file is not None:
+                # Determine content type for optimized encoding detection
+                ext = os.path.splitext(file_path)[1].lower()
+                content_type = {
+                    ".html": "html", 
+                    ".htm": "html",
+                    ".css": "css", 
+                    ".js": "javascript",
+                    ".jsx": "javascript"
+                }.get(ext, "text")
+                
+                source_code, encoding_used, error_msg = safe_read_text_file(file_path, content_type)
+                
+                if source_code is None:
+                    logger.error(f"Could not read web file {file_path}: {error_msg}")
+                    if create_encoding_error_message is not None:
+                        error_message = create_encoding_error_message(file_path, f"web {content_type}")
+                    else:
+                        error_message = f"Could not read web file {file_path}"
+                    return self.create_error_result(file_path, ValueError(error_message))
+                
+                logger.info(f"Successfully read web file using {encoding_used}: {os.path.basename(file_path)}")
+            else:
+                # Fallback to basic UTF-8 with error handling
+                try:
+                    with open(file_path, encoding="utf-8") as f:
+                        source_code = f.read()
+                        encoding_used = "utf-8"
+                except UnicodeDecodeError:
+                    # Try with latin-1 as fallback
+                    with open(file_path, encoding="latin-1") as f:
+                        source_code = f.read()
+                        encoding_used = "latin-1"
+                        logger.warning(f"Read {file_path} with latin-1 fallback - some characters may be affected")
 
             if not source_code.strip():
                 logger.warning(f"Empty web file: {file_path}")
                 return self.create_success_result(
                     file_path,
                     "[EMPTY FILE] Web file contains no content",
-                    {"analysis_type": "empty_file"},
+                    {"analysis_type": "empty_file", "encoding_used": encoding_used},
                 )
 
             # Determine file type and analyze accordingly
             ext = os.path.splitext(file_path)[1].lower()
 
             if ext in [".html", ".htm"]:
-                return self._analyze_html_file(file_path, source_code)
+                return self._analyze_html_file(file_path, source_code, encoding_used)
             elif ext == ".css":
-                return self._analyze_css_file(file_path, source_code)
+                return self._analyze_css_file(file_path, source_code, encoding_used)
             elif ext in [".js", ".jsx"]:
-                return self._analyze_js_file(file_path, source_code)
+                return self._analyze_js_file(file_path, source_code, encoding_used)
             else:
                 return self.create_error_result(
                     file_path, ValueError(f"Unsupported web file type: {ext}")
@@ -193,7 +238,7 @@ class WebExtractor(BaseExtractor):
             logger.error(f"Error extracting web content from {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _analyze_html_file(self, file_path: str, source_code: str) -> dict[str, Any]:  # type: ignore
+    def _analyze_html_file(self, file_path: str, source_code: str, encoding_used: Optional[str] = None) -> ExtractionResult:
         """Analyze HTML file with validation and accessibility checks."""
         basic_analysis = self._analyze_html_structure(source_code, file_path)
 
@@ -233,13 +278,17 @@ class WebExtractor(BaseExtractor):
                     [line for line in source_code.split("\n") if "<!--" in line]
                 ),
             },
+            "encoding_info": {
+                "encoding_used": encoding_used,
+                "enhanced_encoding": encoding_utils_available
+            },
         }
 
         return self.create_success_result(
             file_path, content_text, comprehensive_analysis
         )
 
-    def _analyze_css_file(self, file_path: str, source_code: str) -> dict[str, Any]:  # type: ignore
+    def _analyze_css_file(self, file_path: str, source_code: str, encoding_used: Optional[str] = None) -> ExtractionResult:
         """Analyze CSS file with validation and best practices."""
         basic_analysis = self._analyze_css_structure(source_code, file_path)
 
@@ -279,13 +328,17 @@ class WebExtractor(BaseExtractor):
                     ]
                 ),
             },
+            "encoding_info": {
+                "encoding_used": encoding_used,
+                "enhanced_encoding": encoding_utils_available
+            },
         }
 
         return self.create_success_result(
             file_path, content_text, comprehensive_analysis
         )
 
-    def _analyze_js_file(self, file_path: str, source_code: str) -> dict[str, Any]:  # type: ignore
+    def _analyze_js_file(self, file_path: str, source_code: str, encoding_used: Optional[str] = None) -> ExtractionResult:
         """Analyze JavaScript file with basic syntax and structure checking."""
         basic_analysis = self._analyze_js_structure(source_code, file_path)
 
@@ -328,6 +381,10 @@ class WebExtractor(BaseExtractor):
                         if line.strip().startswith("//")
                     ]
                 ),
+            },
+            "encoding_info": {
+                "encoding_used": encoding_used,
+                "enhanced_encoding": encoding_utils_available
             },
         }
 
@@ -464,7 +521,7 @@ class WebExtractor(BaseExtractor):
             media_queries_count = analysis.get("media_queries", 0) 
             comments_count = analysis.get("comments", 0)
             
-            organization_info = {
+            organization_info: dict[str, Any] = {
                 "has_imports": isinstance(imports_count, int) and imports_count > 0,
                 "has_media_queries": isinstance(media_queries_count, int) and media_queries_count > 0,
                 "uses_modern_features": analysis["has_css_variables"]

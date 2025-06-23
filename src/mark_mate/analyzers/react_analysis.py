@@ -11,7 +11,7 @@ import logging
 import os
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 
 logger = logging.getLogger(__name__)
 
@@ -1115,6 +1115,7 @@ class TypeScriptAnalyzer:
             if "export default" in source_code:
                 default_match = re.search(r"export\s+default\s+(\w+)", source_code)
                 if default_match:
+                    import_analysis = cast(dict[str, Any], import_analysis)
                     import_analysis["default_export"] = default_match.group(1)
 
             named_exports = re.findall(
@@ -1211,7 +1212,7 @@ class TypeScriptAnalyzer:
         self, analysis_results: dict[str, Any]
     ) -> dict[str, Any]:
         """Generate TypeScript analysis summary."""
-        summary = {
+        summary: Dict[str, Any] = {
             "type_safety_level": "unknown",
             "modern_features_usage": "unknown",
             "code_quality": "unknown",
@@ -1450,7 +1451,7 @@ class BuildConfigAnalyzer:
         deps = package_data.get("dependencies", {})
         dev_deps = package_data.get("devDependencies", {})
 
-        dependency_analysis = {
+        dependency_analysis: Dict[str, Any] = {
             "total_dependencies": len(deps) + len(dev_deps),
             "production_count": len(deps),
             "development_count": len(dev_deps),

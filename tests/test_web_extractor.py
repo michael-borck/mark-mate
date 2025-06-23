@@ -17,6 +17,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from mark_mate.extractors.web_extractor import WebExtractor
+from mark_mate.extractors.models import ExtractionResult, FileInfo
 
 
 class TestWebExtractor:
@@ -110,24 +111,24 @@ class TestWebExtractor:
             result = self.extractor.extract_content(temp_file)
             
             # Verify result structure
-            assert isinstance(result, dict)
-            assert "success" in result
-            assert "file_info" in result
-            assert "content" in result
-            assert "analysis" in result
-            assert "extractor" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            assert hasattr(result, "file_info")
+            assert hasattr(result, "content")
+            assert hasattr(result, "analysis")
+            assert hasattr(result, "extractor")
             
             # Verify content extraction
-            if result.get("success"):
-                assert isinstance(result["content"], str)  # Content is a formatted string
-                assert result["file_info"]["extension"] == ".html"
-                assert result["extractor"] == "web_extractor"
+            if result.success:
+                assert isinstance(result.content, str)  # Content is a formatted string
+                assert result.file_info.extension == ".html"
+                assert result.extractor == "web_extractor"
                 
                 # Should contain HTML analysis if available
-                if "analysis" in result:
-                    assert isinstance(result["analysis"], dict)
-                    assert "file_type" in result["analysis"]
-                    assert result["analysis"]["file_type"] == "html"
+                if result.analysis:
+                    assert isinstance(result.analysis, dict)
+                    assert "file_type" in result.analysis
+                    assert result.analysis["file_type"] == "html"
                     
         finally:
             os.unlink(temp_file)
@@ -195,24 +196,24 @@ body {
             result = self.extractor.extract_content(temp_file)
             
             # Verify result structure
-            assert isinstance(result, dict)
-            assert "success" in result
-            assert "file_info" in result
-            assert "content" in result
-            assert "analysis" in result
-            assert "extractor" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            assert hasattr(result, "file_info")
+            assert hasattr(result, "content")
+            assert hasattr(result, "analysis")
+            assert hasattr(result, "extractor")
             
             # Verify content extraction
-            if result.get("success"):
-                assert isinstance(result["content"], str)  # Content is a formatted string
-                assert result["file_info"]["extension"] == ".css"
-                assert result["extractor"] == "web_extractor"
+            if result.success:
+                assert isinstance(result.content, str)  # Content is a formatted string
+                assert result.file_info.extension == ".css"
+                assert result.extractor == "web_extractor"
                 
                 # Should contain CSS analysis if available
-                if "analysis" in result:
-                    assert isinstance(result["analysis"], dict)
-                    assert "file_type" in result["analysis"]
-                    assert result["analysis"]["file_type"] in ["css", "javascript"]  # CSS gets analyzed as JS sometimes
+                if hasattr(result, "analysis"):
+                    assert isinstance(result.analysis, dict)
+                    assert "file_type" in result.analysis
+                    assert result.analysis["file_type"] in ["css", "javascript"]  # CSS gets analyzed as JS sometimes
                     
         finally:
             os.unlink(temp_file)
@@ -298,24 +299,24 @@ export { UserManager, userManager };
             result = self.extractor.extract_content(temp_file)
             
             # Verify result structure
-            assert isinstance(result, dict)
-            assert "success" in result
-            assert "file_info" in result
-            assert "content" in result
-            assert "analysis" in result
-            assert "extractor" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            assert hasattr(result, "file_info")
+            assert hasattr(result, "content")
+            assert hasattr(result, "analysis")
+            assert hasattr(result, "extractor")
             
             # Verify content extraction
-            if result.get("success"):
-                assert isinstance(result["content"], str)  # Content is a formatted string
-                assert result["file_info"]["extension"] in [".js", ".jsx"]
-                assert result["extractor"] == "web_extractor"
+            if result.success:
+                assert isinstance(result.content, str)  # Content is a formatted string
+                assert result.file_info.extension in [".js", ".jsx"]
+                assert result.extractor == "web_extractor"
                 
                 # Should contain JavaScript analysis if available
-                if "analysis" in result:
-                    assert isinstance(result["analysis"], dict)
-                    assert "file_type" in result["analysis"]
-                    assert result["analysis"]["file_type"] in ["js", "javascript"]
+                if hasattr(result, "analysis"):
+                    assert isinstance(result.analysis, dict)
+                    assert "file_type" in result.analysis
+                    assert result.analysis["file_type"] in ["js", "javascript"]
                     
         finally:
             os.unlink(temp_file)
@@ -416,18 +417,18 @@ export default UserProfile;
             result = self.extractor.extract_content(temp_file)
             
             # Verify result structure
-            assert isinstance(result, dict)
-            assert "success" in result
-            assert "file_info" in result
-            assert "content" in result
-            assert "analysis" in result
-            assert "extractor" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            assert hasattr(result, "file_info")
+            assert hasattr(result, "content")
+            assert hasattr(result, "analysis")
+            assert hasattr(result, "extractor")
             
             # Verify content extraction
-            if result.get("success"):
-                assert isinstance(result["content"], str)  # Content is a formatted string
-                assert result["file_info"]["extension"] == ".jsx"
-                assert result["extractor"] == "web_extractor"
+            if result.success:
+                assert isinstance(result.content, str)  # Content is a formatted string
+                assert result.file_info.extension == ".jsx"
+                assert result.extractor == "web_extractor"
                 
         finally:
             os.unlink(temp_file)
@@ -455,13 +456,13 @@ export default UserProfile;
             result = self.extractor.extract_content(temp_file)
             
             # Should handle gracefully
-            assert isinstance(result, dict)
-            assert "success" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
             
             # Should still extract content even if malformed
-            if result.get("success"):
-                assert isinstance(result["content"], str)
-                assert "extractor" in result
+            if result.success:
+                assert isinstance(result.content, str)
+                assert hasattr(result, "extractor")
                 
         finally:
             os.unlink(temp_file)
@@ -492,13 +493,13 @@ missing-selector-dot {
             result = self.extractor.extract_content(temp_file)
             
             # Should handle gracefully
-            assert isinstance(result, dict)
-            assert "success" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
             
             # Should still extract content even if invalid
-            if result.get("success"):
-                assert isinstance(result["content"], str)
-                assert "extractor" in result
+            if result.success:
+                assert isinstance(result.content, str)
+                assert hasattr(result, "extractor")
                 
         finally:
             os.unlink(temp_file)
@@ -507,10 +508,10 @@ missing-selector-dot {
         """Test handling of non-existent files."""
         result = self.extractor.extract_content("/non/existent/file.html")
         
-        assert isinstance(result, dict)
-        assert "success" in result
-        assert result["success"] is False
-        assert "error" in result
+        assert isinstance(result, ExtractionResult)
+        assert hasattr(result, "success")
+        assert result.success is False
+        assert hasattr(result, "error")
 
     def test_extract_unsupported_file(self):
         """Test handling of unsupported file types."""
@@ -521,10 +522,10 @@ missing-selector-dot {
         try:
             result = self.extractor.extract_content(temp_file)
             
-            assert isinstance(result, dict)
-            assert "success" in result
-            assert result["success"] is False
-            assert "error" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            assert result.success is False
+            assert hasattr(result, "error")
             
         finally:
             os.unlink(temp_file)
@@ -548,14 +549,14 @@ missing-selector-dot {
             result = extractor.extract_content(temp_file)
             
             # Should still extract content successfully
-            assert isinstance(result, dict)
-            assert "success" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
             
-            if result.get("success"):
-                assert isinstance(result["content"], str)
-                assert "extractor" in result
+            if result.success:
+                assert isinstance(result.content, str)
+                assert hasattr(result, "extractor")
                 # Should not have validation results when validators unavailable
-                assert "analysis" in result
+                assert hasattr(result, "analysis")
                 
         finally:
             os.unlink(temp_file)
@@ -584,12 +585,12 @@ missing-selector-dot {
             result = self.extractor.extract_content(temp_file)
             
             # Should handle large files
-            assert isinstance(result, dict)
-            assert "success" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
             
-            if result.get("success"):
-                assert isinstance(result["content"], str)
-                assert len(result["content"]) > 1000  # Large CSS generates substantial analysis content
+            if result.success:
+                assert isinstance(result.content, str)
+                assert len(result.content) > 1000  # Large CSS generates substantial analysis content
                 
         finally:
             os.unlink(temp_file)
@@ -627,12 +628,14 @@ class TestWebExtractorIntegration:
             result = extractor.extract_content(temp_file)
             
             # Result should be suitable for MarkMate grading workflow
-            assert isinstance(result, dict)
-            assert "success" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
             
             # Should be JSON serializable (important for MarkMate workflow)
             import json
-            json_str = json.dumps(result, default=str)
+            # Use Pydantic's model_dump to convert to dict for JSON serialization
+            result_dict = result.model_dump()
+            json_str = json.dumps(result_dict)
             assert isinstance(json_str, str)
             
             # Should be able to deserialize
@@ -662,17 +665,17 @@ class TestWebExtractorIntegration:
                 result = extractor.extract_content(temp_file)
                 
                 # All should have consistent top-level structure
-                assert isinstance(result, dict)
-                assert "success" in result
+                assert isinstance(result, ExtractionResult)
+                assert hasattr(result, "success")
                 
-                if result.get("success"):
-                    assert "content" in result
-                    assert "file_info" in result
-                    assert "analysis" in result
-                    assert "extractor" in result
-                    assert isinstance(result["content"], str)
-                    assert isinstance(result["file_info"], dict)
-                    assert isinstance(result["analysis"], dict)
+                if result.success:
+                    assert hasattr(result, "content")
+                    assert hasattr(result, "file_info")
+                    assert hasattr(result, "analysis")
+                    assert hasattr(result, "extractor")
+                    assert isinstance(result.content, str)
+                    assert isinstance(result.file_info, FileInfo)
+                    assert isinstance(result.analysis, dict)
                     
             finally:
                 os.unlink(temp_file)
@@ -691,10 +694,10 @@ class TestWebExtractorIntegration:
             result = extractor.extract_content(file_path)
             
             # All error results should have consistent structure
-            assert isinstance(result, dict)
-            assert "success" in result
-            if not result["success"]:
-                assert "error" in result
+            assert isinstance(result, ExtractionResult)
+            assert hasattr(result, "success")
+            if not result.success:
+                assert hasattr(result, "error")
 
 
 if __name__ == "__main__":

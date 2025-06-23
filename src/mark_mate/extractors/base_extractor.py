@@ -11,6 +11,8 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
+from .models import ExtractionResult, FileInfo
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,45 +42,45 @@ class BaseExtractor(ABC):
         pass
 
     @abstractmethod
-    def extract_content(self, file_path: str) -> dict[str, Any]:
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content from the specified file.
 
         Args:
             file_path: Path to the file to extract content from.
 
         Returns:
-            Dictionary containing extracted content and metadata.
+            ExtractionResult containing extracted content and metadata.
         """
         pass
 
-    def get_file_info(self, file_path: str) -> dict[str, Any]:
+    def get_file_info(self, file_path: str) -> FileInfo:
         """Get basic file information.
 
         Args:
             file_path: Path to the file.
 
         Returns:
-            Dictionary containing file metadata.
+            FileInfo containing file metadata.
         """
         try:
             stat: os.stat_result = os.stat(file_path)
-            return {
-                "filename": os.path.basename(file_path),
-                "size": stat.st_size,
-                "extension": os.path.splitext(file_path)[1].lower(),
-                "extractor": self.extractor_name,
-            }
+            return FileInfo(
+                filename=os.path.basename(file_path),
+                size=stat.st_size,
+                extension=os.path.splitext(file_path)[1].lower(),
+                extractor=self.extractor_name,
+            )
         except Exception as e:
             logger.error(f"Error getting file info for {file_path}: {e}")
-            return {
-                "filename": os.path.basename(file_path),
-                "size": 0,
-                "extension": os.path.splitext(file_path)[1].lower(),
-                "extractor": self.extractor_name,
-                "error": str(e),
-            }
+            return FileInfo(
+                filename=os.path.basename(file_path),
+                size=0,
+                extension=os.path.splitext(file_path)[1].lower(),
+                extractor=self.extractor_name,
+                error=str(e),
+            )
 
-    def create_error_result(self, file_path: str, error: Exception) -> dict[str, Any]:
+    def create_error_result(self, file_path: str, error: Exception) -> ExtractionResult:
         """Create a standardized error result.
 
         Args:
@@ -86,19 +88,19 @@ class BaseExtractor(ABC):
             error: The exception that occurred.
 
         Returns:
-            Standardized error result dictionary.
+            Standardized error result.
         """
-        return {
-            "success": False,
-            "error": str(error),
-            "file_info": self.get_file_info(file_path),
-            "extractor": self.extractor_name,
-            "content": f"[EXTRACTION ERROR] Could not process {os.path.basename(file_path)}: {str(error)[:100]}",
-        }
+        file_info = self.get_file_info(file_path)
+        return ExtractionResult.create_error(
+            file_path=file_path,
+            error=error,
+            extractor_name=self.extractor_name,
+            file_info=file_info,
+        )
 
     def create_success_result(
         self, file_path: str, content: str, analysis: Optional[dict[str, Any]] = None
-    ) -> dict[str, Any]:
+    ) -> ExtractionResult:
         """Create a standardized success result.
 
         Args:
@@ -107,13 +109,12 @@ class BaseExtractor(ABC):
             analysis: Optional analysis results.
 
         Returns:
-            Standardized success result dictionary.
+            Standardized success result.
         """
-        return {
-            "success": True,
-            "content": content,
-            "file_info": self.get_file_info(file_path),
-            "extractor": self.extractor_name,
-            "analysis": analysis or {},
-            "content_length": len(content) if content else 0,
-        }
+        file_info = self.get_file_info(file_path)
+        return ExtractionResult.create_success(
+            content=content,
+            extractor_name=self.extractor_name,
+            file_info=file_info,
+            analysis=analysis,
+        )

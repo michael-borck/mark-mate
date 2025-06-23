@@ -13,21 +13,21 @@ import re
 from typing import Any, Optional
 
 from .base_extractor import BaseExtractor
+from .models import ExtractionResult
 
 # Import analyzers if available
 try:
-    import sys
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from analyzers.react_analysis import (
+    from mark_mate.analyzers.react_analysis import (
         BuildConfigAnalyzer,
         ReactAnalyzer,
         TypeScriptAnalyzer,
     )
-
-    REACT_ANALYZERS_AVAILABLE = True
+    react_analyzers_available = True
 except ImportError:
-    REACT_ANALYZERS_AVAILABLE = False
+    BuildConfigAnalyzer = None  # type: ignore[misc,assignment]
+    ReactAnalyzer = None  # type: ignore[misc,assignment]
+    TypeScriptAnalyzer = None  # type: ignore[misc,assignment]
+    react_analyzers_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ class ReactExtractor(BaseExtractor):
 
     def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
-        self.extractor_name = "react_extractor"
-        self.supported_extensions = [
+        self.extractor_name: str = "react_extractor"
+        self.supported_extensions: list[str] = [
             ".tsx",
             ".ts",
             ".jsx",
@@ -46,16 +46,19 @@ class ReactExtractor(BaseExtractor):
         ]  # Added .json for package.json
 
         # Initialize analyzers if available
-        self.react_analyzer = None
-        self.typescript_analyzer = None
-        self.build_analyzer = None
-        self.react_analyzers_available = REACT_ANALYZERS_AVAILABLE
+        self.react_analyzer: Optional[Any] = None
+        self.typescript_analyzer: Optional[Any] = None
+        self.build_analyzer: Optional[Any] = None
+        self.react_analyzers_available: bool = react_analyzers_available
 
         if self.react_analyzers_available:
             try:
-                self.react_analyzer = ReactAnalyzer(config)
-                self.typescript_analyzer = TypeScriptAnalyzer(config)
-                self.build_analyzer = BuildConfigAnalyzer(config)
+                if ReactAnalyzer is not None:
+                    self.react_analyzer = ReactAnalyzer(config)
+                if TypeScriptAnalyzer is not None:
+                    self.typescript_analyzer = TypeScriptAnalyzer(config)
+                if BuildConfigAnalyzer is not None:
+                    self.build_analyzer = BuildConfigAnalyzer(config)
                 logger.info("React/TypeScript analyzers initialized successfully")
             except Exception as e:
                 logger.warning(f"Could not initialize React analyzers: {e}")
@@ -77,7 +80,7 @@ class ReactExtractor(BaseExtractor):
 
         return ext in self.supported_extensions
 
-    def extract_content(self, file_path: str) -> dict[str, Any]:
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content and perform analysis on React/TypeScript files."""
         if not self.can_extract(file_path):
             return self.create_error_result(
@@ -108,7 +111,7 @@ class ReactExtractor(BaseExtractor):
             logger.error(f"Error extracting React content from {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _analyze_package_json(self, file_path: str) -> dict[str, Any]:
+    def _analyze_package_json(self, file_path: str) -> ExtractionResult:
         """Analyze package.json for dependencies and build configuration."""
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -164,7 +167,7 @@ class ReactExtractor(BaseExtractor):
             logger.error(f"Error analyzing package.json {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _analyze_build_config(self, file_path: str) -> dict[str, Any]:
+    def _analyze_build_config(self, file_path: str) -> ExtractionResult:
         """Analyze build configuration files."""
         try:
             # Read the file content
@@ -217,7 +220,7 @@ class ReactExtractor(BaseExtractor):
             logger.error(f"Error analyzing build config {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _analyze_react_component(self, file_path: str) -> dict[str, Any]:
+    def _analyze_react_component(self, file_path: str) -> ExtractionResult:
         """Analyze React component files (.tsx/.jsx)."""
         try:
             # Read source code
@@ -310,7 +313,7 @@ class ReactExtractor(BaseExtractor):
             logger.error(f"Error extracting React component from {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _analyze_typescript_file(self, file_path: str) -> dict[str, Any]:
+    def _analyze_typescript_file(self, file_path: str) -> ExtractionResult:
         """Analyze pure TypeScript files (.ts)."""
         try:
             # Read source code
@@ -388,7 +391,7 @@ class ReactExtractor(BaseExtractor):
     ) -> dict[str, Any]:
         """Perform basic package.json structure analysis."""
         try:
-            analysis = {
+            analysis: dict[str, Any] = {
                 "name": package_data.get("name", "unnamed"),
                 "version": package_data.get("version", "0.0.0"),
                 "description": package_data.get("description", ""),
@@ -407,10 +410,13 @@ class ReactExtractor(BaseExtractor):
             }
 
             # Detect React
-            all_deps = (
-                analysis["dependencies"]["production"]
-                + analysis["dependencies"]["development"]
-            )
+            dependencies = analysis["dependencies"]
+            if isinstance(dependencies, dict):
+                production_deps: list[str] = dependencies.get("production", [])
+                development_deps: list[str] = dependencies.get("development", [])
+                all_deps = production_deps + development_deps
+            else:
+                all_deps = []
             if "react" in all_deps or "@types/react" in all_deps:
                 analysis["has_react"] = True
                 analysis["framework_type"] = "react"
@@ -559,9 +565,16 @@ class ReactExtractor(BaseExtractor):
             analysis["jsx_elements"] = list(set(jsx_elements))
 
             # Estimate complexity
-            complexity_score = len(analysis["hooks_used"]) * 2 + len(
-                analysis["jsx_elements"]
-            )
+            hooks_used = analysis.get("hooks_used", [])
+            jsx_elements = analysis.get("jsx_elements", [])
+            
+            # Ensure they are lists before calling len()
+            if not isinstance(hooks_used, list):
+                hooks_used = []
+            if not isinstance(jsx_elements, list):
+                jsx_elements = []
+                
+            complexity_score = len(hooks_used) * 2 + len(jsx_elements)
             if complexity_score > 20:
                 analysis["estimated_complexity"] = "high"
             elif complexity_score > 10:
@@ -902,54 +915,80 @@ class ReactExtractor(BaseExtractor):
             if self.can_extract(file_path):
                 try:
                     result = self.extract_content(file_path)
-                    if result["success"]:
+                    if result.success:
                         project_analysis["files_analyzed"].append(
                             {
                                 "file": os.path.basename(file_path),
-                                "analysis": result.get("analysis", {}),
+                                "analysis": result.analysis or {},
                             }
                         )
 
                         # Aggregate project metrics
-                        analysis = result.get("analysis", {})
+                        analysis = result.analysis or {}
                         file_type = analysis.get("file_type", "")
 
                         if file_type == "react_component":
-                            project_structure = project_analysis["project_structure"]
+                            project_structure = project_analysis.get("project_structure", {})
                             if isinstance(project_structure, dict):
                                 current_react_count = project_structure.get("react_components", 0)
                                 if isinstance(current_react_count, int):
-                                    project_structure["react_components"] = current_react_count + 1
-                            project_analysis["technology_stack"]["react"] = True
+                                    # Update the count safely with explicit typing
+                                    new_count = current_react_count + 1
+                                    project_structure = dict(project_structure)  # Create a copy to avoid type issues
+                                    project_structure["react_components"] = new_count
+                                    project_analysis["project_structure"] = project_structure
+                            
+                            technology_stack = project_analysis.get("technology_stack", {})
+                            if isinstance(technology_stack, dict):
+                                technology_stack["react"] = True
+                                project_analysis["technology_stack"] = technology_stack
 
                             if analysis.get("language") == "typescript":
-                                project_analysis["technology_stack"]["typescript"] = (
-                                    True
-                                )
+                                if isinstance(technology_stack, dict):
+                                    technology_stack["typescript"] = True
+                                    project_analysis["technology_stack"] = technology_stack
 
                         elif file_type == "typescript":
-                            project_structure = project_analysis["project_structure"]
+                            project_structure = project_analysis.get("project_structure", {})
                             if isinstance(project_structure, dict):
                                 current_ts_count = project_structure.get("typescript_files", 0)
                                 if isinstance(current_ts_count, int):
-                                    project_structure["typescript_files"] = current_ts_count + 1
-                            project_analysis["technology_stack"]["typescript"] = True
+                                    # Update the count safely with explicit typing
+                                    new_count = current_ts_count + 1
+                                    project_structure = dict(project_structure)  # Create a copy to avoid type issues
+                                    project_structure["typescript_files"] = new_count
+                                    project_analysis["project_structure"] = project_structure
+                            
+                            technology_stack = project_analysis.get("technology_stack", {})
+                            if isinstance(technology_stack, dict):
+                                technology_stack["typescript"] = True
+                                project_analysis["technology_stack"] = technology_stack
 
                         elif file_type == "package_json":
-                            project_structure = project_analysis["project_structure"]
+                            project_structure = project_analysis.get("project_structure", {})
                             if isinstance(project_structure, dict):
-                                project_structure["has_package_json"] = True
                                 basic = analysis.get("basic_structure", {})
+                                project_structure["has_package_json"] = True
                                 project_structure["build_tool"] = basic.get("build_tool", "unknown")
                                 project_structure["framework_type"] = basic.get("framework_type", "unknown")
-                            project_analysis["technology_stack"]["build_tool"] = (
-                                basic.get("build_tool", "unknown")
-                            )
+                                project_analysis["project_structure"] = project_structure
+                            
+                            technology_stack = project_analysis.get("technology_stack", {})
+                            if isinstance(technology_stack, dict):
+                                basic = analysis.get("basic_structure", {})
+                                technology_stack["build_tool"] = basic.get("build_tool", "unknown")
+                                project_analysis["technology_stack"] = technology_stack
 
                         elif file_type == "build_config":
-                            current_count = project_analysis["project_structure"]["config_files"]
-                            if isinstance(current_count, int):
-                                project_analysis["project_structure"]["config_files"] = current_count + 1
+                            project_structure = project_analysis.get("project_structure", {})
+                            if isinstance(project_structure, dict):
+                                current_count = project_structure.get("config_files", 0)
+                                if isinstance(current_count, int):
+                                    # Update the count safely with explicit typing
+                                    new_count = current_count + 1
+                                    project_structure = dict(project_structure)  # Create a copy to avoid type issues
+                                    project_structure["config_files"] = new_count
+                                    project_analysis["project_structure"] = project_structure
 
                 except Exception as e:
                     logger.error(f"Error analyzing {file_path} in project context: {e}")

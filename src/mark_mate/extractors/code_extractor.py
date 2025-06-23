@@ -14,28 +14,24 @@ import os
 from typing import Any, Optional
 
 from .base_extractor import BaseExtractor
+from .models import ExtractionResult
 
 # Enhanced encoding support
 try:
-    import sys
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from utils.encoding_utils import create_encoding_error_message, safe_read_text_file
-
-    _encoding_utils_available = True
+    from mark_mate.utils.encoding_utils import create_encoding_error_message, safe_read_text_file
+    encoding_utils_available = True
 except ImportError:
-    _encoding_utils_available = False
+    create_encoding_error_message = None  # type: ignore[assignment]
+    safe_read_text_file = None  # type: ignore[assignment]
+    encoding_utils_available = False
 
 # Static analysis imports
 try:
-    import sys
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from analyzers.static_analysis import StaticAnalyzer
-
-    _static_analysis_available = True
+    from mark_mate.analyzers.static_analysis import StaticAnalyzer
+    static_analysis_available = True
 except ImportError:
-    _static_analysis_available = False
+    StaticAnalyzer = None  # type: ignore[misc,assignment]
+    static_analysis_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +46,10 @@ class CodeExtractor(BaseExtractor):
 
         # Initialize static analyzer if available
         self.static_analyzer: Optional[Any] = None
-        self.static_analysis_available: bool = _static_analysis_available
+        self.static_analysis_available: bool = static_analysis_available
         if self.static_analysis_available:
             try:
-                if '_static_analysis_available' in globals() and _static_analysis_available:
+                if StaticAnalyzer is not None:
                     self.static_analyzer = StaticAnalyzer(config)
                 logger.info("Static analyzer initialized successfully")
             except Exception as e:
@@ -72,7 +68,7 @@ class CodeExtractor(BaseExtractor):
         ext: str = os.path.splitext(file_path)[1].lower()
         return ext in self.supported_extensions
 
-    def extract_content(self, file_path: str) -> dict[str, Any]:
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content and perform static analysis on Python files.
         
         Args:
@@ -86,14 +82,14 @@ class CodeExtractor(BaseExtractor):
 
         try:
             # Read source code with enhanced encoding support
-            if _encoding_utils_available:
+            if encoding_utils_available:
                 source_code, encoding_used, error_msg = safe_read_text_file(
                     file_path, "python"
                 )
 
                 if source_code is None:
                     logger.error(f"Could not read Python file {file_path}: {error_msg}")
-                    if '_encoding_utils_available' in globals() and _encoding_utils_available:
+                    if create_encoding_error_message is not None:
                         error_message = create_encoding_error_message(file_path, "Python code")
                     else:
                         error_message = f"Could not read file {file_path}"
@@ -370,12 +366,12 @@ class CodeExtractor(BaseExtractor):
             if basic_analysis.get("functions"):
                 content_parts.append("FUNCTIONS:")
                 for func in basic_analysis["functions"]:
-                    doc_status: str = (
+                    func_doc_status: str = (
                         "✓ documented" if func["has_docstring"] else "✗ no docstring"
                     )
                     visibility: str = "private" if func["is_private"] else "public"
                     content_parts.append(
-                        f"  - {func['name']} (line {func['line']}, {visibility}, {doc_status})"
+                        f"  - {func['name']} (line {func['line']}, {visibility}, {func_doc_status})"
                     )
                 content_parts.append("")
 
@@ -383,11 +379,11 @@ class CodeExtractor(BaseExtractor):
             if basic_analysis.get("classes"):
                 content_parts.append("CLASSES:")
                 for cls in basic_analysis["classes"]:
-                    doc_status: str = (
+                    class_doc_status: str = (
                         "✓ documented" if cls["has_docstring"] else "✗ no docstring"
                     )
                     content_parts.append(
-                        f"  - {cls['name']} (line {cls['line']}, {doc_status})"
+                        f"  - {cls['name']} (line {cls['line']}, {class_doc_status})"
                     )
                     if cls.get("methods"):
                         for method in cls["methods"][:5]:  # Show first 5 methods
@@ -491,18 +487,18 @@ class CodeExtractor(BaseExtractor):
         for file_path in file_paths:
             if self.can_extract(file_path):
                 try:
-                    result: dict[str, Any] = self.extract_content(file_path)
-                    if result["success"]:
+                    result: ExtractionResult = self.extract_content(file_path)
+                    if result.success:
                         project_analysis["files_analyzed"].append(
                             {
                                 "file": os.path.basename(file_path),
-                                "analysis": result.get("analysis", {}),
+                                "analysis": result.analysis,
                             }
                         )
 
                         # Aggregate project metrics
-                        if "basic_structure" in result.get("analysis", {}):
-                            basic: dict[str, Any] = result["analysis"]["basic_structure"]
+                        if "basic_structure" in result.analysis:
+                            basic: dict[str, Any] = result.analysis["basic_structure"]
                             project_analysis["project_structure"][
                                 "total_functions"
                             ] += len(basic.get("functions", []))
@@ -510,8 +506,8 @@ class CodeExtractor(BaseExtractor):
                                 len(basic.get("classes", []))
                             )
 
-                        if "content_metrics" in result.get("analysis", {}):
-                            metrics: dict[str, Any] = result["analysis"]["content_metrics"]
+                        if "content_metrics" in result.analysis:
+                            metrics: dict[str, Any] = result.analysis["content_metrics"]
                             project_analysis["project_structure"]["total_lines"] += (
                                 metrics.get("source_lines", 0)
                             )

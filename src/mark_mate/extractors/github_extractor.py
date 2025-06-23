@@ -17,6 +17,16 @@ from datetime import datetime
 from typing import Any, Optional
 
 from .base_extractor import BaseExtractor
+from .models import ExtractionResult
+
+# Enhanced encoding support for international README files
+try:
+    from mark_mate.utils.encoding_utils import safe_read_text_file, create_encoding_error_message
+    encoding_utils_available = True
+except ImportError:
+    safe_read_text_file = None  # type: ignore[assignment]
+    create_encoding_error_message = None  # type: ignore[assignment]
+    encoding_utils_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +54,11 @@ class GitHubExtractor(BaseExtractor):
         except (subprocess.TimeoutExpired, FileNotFoundError):
             return False
 
-    def can_extract(self, repo_url: str) -> bool:
+    def can_extract(self, file_path: str) -> bool:
         """Check if this extractor can handle the given repository URL.
         
         Args:
-            repo_url: GitHub repository URL to check.
+            file_path: GitHub repository URL to check.
             
         Returns:
             True if this is a valid GitHub URL and git is available, False otherwise.
@@ -63,9 +73,9 @@ class GitHubExtractor(BaseExtractor):
             r"git@github\.com:[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+\.git",
         ]
 
-        return any(re.match(pattern, repo_url) for pattern in github_patterns)
+        return any(re.match(pattern, file_path) for pattern in github_patterns)
 
-    def extract_content(self, repo_url: str) -> dict[str, Any]:
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content and perform analysis on GitHub repository.
         
         Args:
@@ -74,37 +84,37 @@ class GitHubExtractor(BaseExtractor):
         Returns:
             Dictionary containing extracted repository analysis.
         """
-        if not self.can_extract(repo_url):
+        if not self.can_extract(file_path):
             return self.create_error_result(
-                repo_url, ValueError("Invalid GitHub repository URL")
+                file_path, ValueError("Invalid GitHub repository URL")
             )
 
         if not self.git_available:
             return self.create_error_result(
-                repo_url, RuntimeError("Git is not available")
+                file_path, RuntimeError("Git is not available")
             )
 
         try:
             # Analyze repository
-            analysis_result: dict[str, Any] = self._analyze_repository(repo_url)
+            analysis_result: dict[str, Any] = self._analyze_repository(file_path)
 
             if analysis_result["success"]:
                 # Create comprehensive content text
                 content_text: str = self._create_content_text(
-                    repo_url, analysis_result["analysis"]
+                    file_path, analysis_result["analysis"]
                 )
 
                 return self.create_success_result(
-                    repo_url, content_text, analysis_result["analysis"]
+                    file_path, content_text, analysis_result["analysis"]
                 )
             else:
                 return self.create_error_result(
-                    repo_url, Exception(analysis_result.get("error", "Unknown error"))
+                    file_path, Exception(analysis_result.get("error", "Unknown error"))
                 )
 
         except Exception as e:
-            logger.error(f"GitHub extraction failed for {repo_url}: {e}")
-            return self.create_error_result(repo_url, e)
+            logger.error(f"GitHub extraction failed for {file_path}: {e}")
+            return self.create_error_result(file_path, e)
 
     def _analyze_repository(self, repo_url: str) -> dict[str, Any]:
         """Analyze GitHub repository.
@@ -429,7 +439,7 @@ class GitHubExtractor(BaseExtractor):
         return {
             "unique_authors": len(authors),
             "unique_emails": len(emails),
-            "primary_author": max(authors.keys(), key=authors.get) if authors else None,
+            "primary_author": max(authors.keys(), key=lambda k: authors[k]) if authors else None,
             "collaboration_level": "solo" if len(authors) == 1 else "collaborative",
         }
 
@@ -512,9 +522,6 @@ class GitHubExtractor(BaseExtractor):
             total_checks += 1
 
             # Assessment
-            if total_checks == 0:
-                return "minimal"
-
             organization_ratio = good_indicators / total_checks
 
             if organization_ratio >= 0.8:
@@ -539,19 +546,31 @@ class GitHubExtractor(BaseExtractor):
                     for file in files:
                         if file.lower().startswith("readme"):
                             readme_path = os.path.join(root, file)
-                            try:
-                                with open(readme_path, encoding="utf-8") as f:
-                                    readme_content = f.read()
-                                break
-                            except:
-                                try:
-                                    with open(
-                                        readme_path, encoding="latin-1"
-                                    ) as f:
-                                        readme_content = f.read()
+                            
+                            # Enhanced encoding support for international README files
+                            if encoding_utils_available and safe_read_text_file is not None:
+                                content, encoding_used, error_msg = safe_read_text_file(readme_path, "markdown")
+                                if content is not None:
+                                    readme_content = content
+                                    logger.info(f"Successfully read README with enhanced encoding: {encoding_used}")
                                     break
-                                except:
-                                    pass
+                                else:
+                                    logger.warning(f"Enhanced encoding failed for README {readme_path}: {error_msg}")
+                            
+                            # Fallback to basic encoding attempts
+                            fallback_encodings = ["utf-8", "latin-1", "cp1252", "cp1251", "gb2312", "shift_jis"]
+                            for encoding in fallback_encodings:
+                                try:
+                                    with open(readme_path, encoding=encoding) as f:
+                                        readme_content = f.read()
+                                        logger.info(f"README read successfully with {encoding}")
+                                        break
+                                except Exception as e:
+                                    logger.debug(f"Failed to read README with {encoding}: {e}")
+                                    continue
+                            
+                            if readme_content:
+                                break
 
             if not readme_content:
                 return "minimal"
@@ -642,7 +661,7 @@ class GitHubExtractor(BaseExtractor):
     def _analyze_files(self, repo_path: str) -> dict[str, Any]:
         """Analyze repository files and content."""
         try:
-            file_stats = {
+            file_stats: dict[str, Any] = {
                 "total_files": 0,
                 "code_files": 0,
                 "documentation_files": 0,

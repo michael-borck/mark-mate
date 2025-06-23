@@ -12,35 +12,47 @@ import os
 from typing import Any, Optional
 
 from .base_extractor import BaseExtractor
+from .models import ExtractionResult
+
+# Enhanced encoding support for international files
+try:
+    from mark_mate.utils.encoding_utils import safe_read_text_file
+    encoding_utils_available = True
+except ImportError:
+    safe_read_text_file = None  # type: ignore[assignment]
+    encoding_utils_available = False
 
 # Optional pandas import
 try:
     import pandas as pd
-
-    PANDAS_AVAILABLE = True
+    pandas_available = True
 except ImportError:
-    PANDAS_AVAILABLE = False
+    pd = None  # type: ignore[assignment]
+    pandas_available = False
 
 # Office document imports
 try:
     from pptx import Presentation
-
-    PPTX_AVAILABLE = True
+    pptx_available = True
 except ImportError:
-    PPTX_AVAILABLE = False
+    Presentation = None  # type: ignore[misc,assignment]
+    pptx_available = False
 
 try:
     from openpyxl import load_workbook
-
-    OPENPYXL_AVAILABLE = True
+    openpyxl_available = True
 except ImportError:
-    OPENPYXL_AVAILABLE = False
+    load_workbook = None  # type: ignore[misc,assignment]
+    openpyxl_available = False
 
 logger = logging.getLogger(__name__)
 
 
 class OfficeExtractor(BaseExtractor):
     """Extractor for Office documents (PowerPoint, Excel) and CSV files."""
+    
+    extractor_name: str
+    supported_extensions: list[str]
 
     def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
@@ -59,7 +71,7 @@ class OfficeExtractor(BaseExtractor):
         ext: str = os.path.splitext(file_path)[1].lower()
         return ext in self.supported_extensions
 
-    def extract_content(self, file_path: str) -> dict[str, Any]:
+    def extract_content(self, file_path: str) -> ExtractionResult:
         """Extract content from office documents and CSV files.
         
         Args:
@@ -91,7 +103,7 @@ class OfficeExtractor(BaseExtractor):
             logger.error(f"Error extracting office document {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _extract_powerpoint(self, file_path: str) -> dict[str, Any]:
+    def _extract_powerpoint(self, file_path: str) -> ExtractionResult:
         """Extract content from PowerPoint presentation.
         
         Args:
@@ -100,7 +112,7 @@ class OfficeExtractor(BaseExtractor):
         Returns:
             Dictionary containing extracted presentation content.
         """
-        if not PPTX_AVAILABLE:
+        if not pptx_available:
             error_msg: str = "python-pptx not available for PowerPoint extraction"
             logger.warning(error_msg)
             return self.create_error_result(file_path, ImportError(error_msg))
@@ -173,7 +185,7 @@ PRESENTATION CONTENT:
             logger.error(f"Error extracting PowerPoint {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _extract_excel(self, file_path: str) -> dict[str, Any]:
+    def _extract_excel(self, file_path: str) -> ExtractionResult:
         """Extract content from Excel workbook.
         
         Args:
@@ -182,14 +194,14 @@ PRESENTATION CONTENT:
         Returns:
             Dictionary containing extracted spreadsheet content.
         """
-        if not OPENPYXL_AVAILABLE:
+        if not openpyxl_available:
             error_msg: str = "openpyxl not available for Excel extraction"
             logger.warning(error_msg)
             return self.create_error_result(file_path, ImportError(error_msg))
 
         try:
             # Try to load with pandas first for better data analysis
-            if PANDAS_AVAILABLE:
+            if pandas_available:
                 try:
                     # Read all sheets
                     excel_data = pd.read_excel(
@@ -313,7 +325,7 @@ WORKBOOK CONTENT:
             logger.error(f"Error extracting Excel {file_path}: {e}")
             return self.create_error_result(file_path, e)
 
-    def _extract_csv(self, file_path: str) -> dict[str, Any]:
+    def _extract_csv(self, file_path: str) -> ExtractionResult:
         """Extract content from CSV/TSV file.
         
         Args:
@@ -326,25 +338,53 @@ WORKBOOK CONTENT:
             # Detect delimiter
             delimiter: str = "\\t" if file_path.lower().endswith(".tsv") else ","
 
-            # Try to detect encoding and read with pandas if available
-            encodings: list[str] = ["utf-8", "latin-1", "cp1252"]
+            # Enhanced encoding detection for international CSV files
             df = None
             used_encoding: Optional[str] = None
+            csv_content: Optional[str] = None
 
-            if PANDAS_AVAILABLE:
-                for encoding in encodings:
+            # Try enhanced encoding support first
+            if encoding_utils_available and safe_read_text_file is not None:
+                csv_content, used_encoding, error_msg = safe_read_text_file(file_path, "csv")
+                if csv_content is not None:
+                    logger.info(f"Successfully read CSV with enhanced encoding: {used_encoding}")
+                else:
+                    logger.warning(f"Enhanced encoding failed for {file_path}: {error_msg}")
+
+            # If enhanced encoding worked and pandas is available, use pandas with the detected encoding
+            if csv_content is not None and pandas_available and used_encoding:
+                try:
+                    # Clean the encoding name for pandas (remove error handling info)
+                    clean_encoding = used_encoding.split(' (')[0] if ' (' in used_encoding else used_encoding
+                    df = pd.read_csv(file_path, delimiter=delimiter, encoding=clean_encoding)
+                    logger.info(f"Successfully read CSV with pandas using detected encoding: {clean_encoding}")
+                except Exception as e:
+                    clean_encoding = used_encoding.split(' (')[0] if ' (' in used_encoding else used_encoding
+                    logger.warning(f"Pandas failed with detected encoding {clean_encoding}: {e}")
+                    # Fall back to basic encoding attempts
+                    fallback_encodings = ["utf-8", "latin-1", "cp1252"]
+                    for encoding in fallback_encodings:
+                        try:
+                            df = pd.read_csv(file_path, delimiter=delimiter, encoding=encoding)
+                            used_encoding = encoding
+                            logger.info(f"Pandas fallback successful with {encoding}")
+                            break
+                        except Exception:
+                            continue
+            
+            # If no enhanced encoding or pandas failed, try basic pandas encoding attempts
+            elif pandas_available:
+                fallback_encodings = ["utf-8", "latin-1", "cp1252", "cp1251", "gb2312", "shift_jis"]
+                for encoding in fallback_encodings:
                     try:
-                        df = pd.read_csv(
-                            file_path, delimiter=delimiter, encoding=encoding
-                        )
+                        df = pd.read_csv(file_path, delimiter=delimiter, encoding=encoding)
                         used_encoding = encoding
+                        logger.info(f"Basic pandas encoding successful with {encoding}")
                         break
                     except UnicodeDecodeError:
                         continue
                     except Exception as e:
-                        logger.warning(
-                            f"Error reading CSV with pandas and {encoding}: {e}"
-                        )
+                        logger.warning(f"Error reading CSV with pandas and {encoding}: {e}")
                         continue
 
             if df is not None:
@@ -359,19 +399,19 @@ WORKBOOK CONTENT:
                     "delimiter": "tab" if delimiter == "\\t" else "comma",
                 }
 
-            # Add statistics for numeric columns
-            numeric_cols = df.select_dtypes(include=["number"]).columns
-            if len(numeric_cols) > 0:
-                analysis["numeric_summary"] = df[numeric_cols].describe().to_dict()
+                # Add statistics for numeric columns
+                numeric_cols = df.select_dtypes(include=["number"]).columns
+                if len(numeric_cols) > 0:
+                    analysis["numeric_summary"] = df[numeric_cols].describe().to_dict()
 
-            # Add sample data
-            analysis["sample_data"] = {
-                "first_5_rows": df.head(5).to_dict(),
-                "last_5_rows": df.tail(5).to_dict() if len(df) > 5 else {},
-            }
+                # Add sample data
+                analysis["sample_data"] = {
+                    "first_5_rows": df.head(5).to_dict(),
+                    "last_5_rows": df.tail(5).to_dict() if len(df) > 5 else {},
+                }
 
-            # Create content text
-            content = f"""CSV/TSV DATA SUMMARY:
+                # Create content text
+                content = f"""CSV/TSV DATA SUMMARY:
 File: {os.path.basename(file_path)}
 Dimensions: {df.shape[0]} rows × {df.shape[1]} columns
 Encoding: {used_encoding}
@@ -383,40 +423,52 @@ COLUMNS:
 DATA QUALITY:
 """
 
-            # Add data quality information
-            for col in df.columns:
-                null_pct = analysis["null_percentage"][col]
-                content += f"- {col}: {null_pct:.1f}% missing\\n"
+                # Add data quality information
+                for col in df.columns:
+                    null_percentage = analysis.get("null_percentage")
+                    if null_percentage is not None:
+                        null_pct = null_percentage[col]
+                        content += f"- {col}: {null_pct:.1f}% missing\\n"
 
-            content += f"\\nFIRST FEW ROWS:\\n{df.head(10).to_string()}\\n"
+                content += f"\\nFIRST FEW ROWS:\\n{df.head(10).to_string()}\\n"
 
-            if len(df) > 10:
-                content += f"\\nLAST FEW ROWS:\\n{df.tail(5).to_string()}\\n"
+                if len(df) > 10:
+                    content += f"\\nLAST FEW ROWS:\\n{df.tail(5).to_string()}\\n"
 
                 return self.create_success_result(file_path, content, analysis)
             else:
-                # Fallback: basic CSV reading without pandas
-                logger.info(
-                    f"Using basic CSV reader for {file_path} (pandas not available)"
-                )
+                # Fallback: basic CSV reading
+                logger.info(f"Using basic CSV reader for {file_path}")
                 rows = []
                 headers = None
-                used_encoding = "utf-8"
 
-                for encoding in encodings:
+                # If we have CSV content from enhanced encoding, parse it directly
+                if csv_content is not None:
                     try:
-                        with open(file_path, encoding=encoding) as f:
-                            reader = csv.reader(f, delimiter=delimiter)
-                            rows = list(reader)
-                            used_encoding = encoding
-                            break
-                    except UnicodeDecodeError:
-                        continue
+                        from io import StringIO
+                        reader = csv.reader(StringIO(csv_content), delimiter=delimiter)
+                        rows = list(reader)
+                        logger.info(f"Successfully parsed CSV content with enhanced encoding: {used_encoding}")
                     except Exception as e:
-                        logger.warning(
-                            f"Error reading CSV with basic reader and {encoding}: {e}"
-                        )
-                        continue
+                        logger.warning(f"Failed to parse CSV content from enhanced encoding: {e}")
+                        csv_content = None
+                
+                # If enhanced encoding didn't work, try basic encoding fallback
+                if not rows:
+                    fallback_encodings = ["utf-8", "latin-1", "cp1252", "cp1251", "gb2312", "shift_jis", "big5"]
+                    for encoding in fallback_encodings:
+                        try:
+                            with open(file_path, encoding=encoding) as f:
+                                reader = csv.reader(f, delimiter=delimiter)
+                                rows = list(reader)
+                                used_encoding = encoding
+                                logger.info(f"Basic CSV reader successful with {encoding}")
+                                break
+                        except UnicodeDecodeError:
+                            continue
+                        except Exception as e:
+                            logger.warning(f"Error reading CSV with basic reader and {encoding}: {e}")
+                            continue
 
                 if not rows:
                     raise ValueError("Could not read CSV file with any encoding")

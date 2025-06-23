@@ -9,6 +9,7 @@ import argparse
 import logging
 import os
 from pathlib import Path
+from typing import Any, Dict
 
 import yaml
 
@@ -82,7 +83,7 @@ def _add_default_prompts(config):
     return config
 
 
-def create_full_template():
+def create_full_template() -> Dict[str, Any]:
     """Create full-featured configuration template."""
     config = {
         "grading": {
@@ -142,7 +143,7 @@ def create_full_template():
     return _add_default_prompts(config)
 
 
-def create_minimal_template():
+def create_minimal_template() -> Dict[str, Any]:
     """Create minimal configuration template."""
     available = check_available_providers()
 
@@ -203,7 +204,7 @@ def create_minimal_template():
     return _add_default_prompts(config)
 
 
-def create_single_provider_template(provider):
+def create_single_provider_template(provider: str) -> Dict[str, Any]:
     """Create single-provider configuration template."""
     provider_configs = {
         "anthropic": {
@@ -250,7 +251,7 @@ def create_single_provider_template(provider):
     return _add_default_prompts(config)
 
 
-def create_cost_optimized_template():
+def create_cost_optimized_template() -> Dict[str, Any]:
     """Create cost-optimized configuration template."""
     available = check_available_providers()
     graders = []
