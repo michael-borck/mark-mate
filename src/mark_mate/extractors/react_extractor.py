@@ -915,9 +915,11 @@ class ReactExtractor(BaseExtractor):
                         file_type = analysis.get("file_type", "")
 
                         if file_type == "react_component":
-                            project_analysis["project_structure"][
-                                "react_components"
-                            ] += 1
+                            project_structure = project_analysis["project_structure"]
+                            if isinstance(project_structure, dict):
+                                current_react_count = project_structure.get("react_components", 0)
+                                if isinstance(current_react_count, int):
+                                    project_structure["react_components"] = current_react_count + 1
                             project_analysis["technology_stack"]["react"] = True
 
                             if analysis.get("language") == "typescript":
@@ -926,28 +928,28 @@ class ReactExtractor(BaseExtractor):
                                 )
 
                         elif file_type == "typescript":
-                            project_analysis["project_structure"][
-                                "typescript_files"
-                            ] += 1
+                            project_structure = project_analysis["project_structure"]
+                            if isinstance(project_structure, dict):
+                                current_ts_count = project_structure.get("typescript_files", 0)
+                                if isinstance(current_ts_count, int):
+                                    project_structure["typescript_files"] = current_ts_count + 1
                             project_analysis["technology_stack"]["typescript"] = True
 
                         elif file_type == "package_json":
-                            project_analysis["project_structure"][
-                                "has_package_json"
-                            ] = True
-                            basic = analysis.get("basic_structure", {})
-                            project_analysis["project_structure"]["build_tool"] = (
-                                basic.get("build_tool", "unknown")
-                            )
-                            project_analysis["project_structure"]["framework_type"] = (
-                                basic.get("framework_type", "unknown")
-                            )
+                            project_structure = project_analysis["project_structure"]
+                            if isinstance(project_structure, dict):
+                                project_structure["has_package_json"] = True
+                                basic = analysis.get("basic_structure", {})
+                                project_structure["build_tool"] = basic.get("build_tool", "unknown")
+                                project_structure["framework_type"] = basic.get("framework_type", "unknown")
                             project_analysis["technology_stack"]["build_tool"] = (
                                 basic.get("build_tool", "unknown")
                             )
 
                         elif file_type == "build_config":
-                            project_analysis["project_structure"]["config_files"] += 1
+                            current_count = project_analysis["project_structure"]["config_files"]
+                            if isinstance(current_count, int):
+                                project_analysis["project_structure"]["config_files"] = current_count + 1
 
                 except Exception as e:
                     logger.error(f"Error analyzing {file_path} in project context: {e}")

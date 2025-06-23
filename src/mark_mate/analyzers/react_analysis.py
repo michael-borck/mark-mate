@@ -440,7 +440,6 @@ class ReactAnalyzer:
 
             # Event handlers
             event_handlers_found: list[str] = re.findall(r"on(\w+)=", source_code)
-            event_handlers_list = _ensure_list_field(jsx_analysis, "event_handlers")
             jsx_analysis["event_handlers"] = list(set(event_handlers_found))
 
             # JSX complexity
@@ -505,14 +504,12 @@ class ReactAnalyzer:
             custom_hook_matches = re.findall(
                 r"(?:const|let|var)\s+(\w*use\w+)\s*=", source_code
             )
-            custom_hooks_list = _ensure_list_field(hooks_analysis, "custom_hooks")
             hooks_analysis["custom_hooks"] = list(set(custom_hook_matches))
 
             # Dependency arrays analysis
             dependency_arrays = re.findall(
                 r"useEffect\([^,]+,\s*\[([^\]]*)\]", source_code
             )
-            dependency_arrays_list = _ensure_list_field(hooks_analysis, "dependency_arrays")
             hooks_analysis["dependency_arrays"] = dependency_arrays
 
             # Best practices checks
@@ -596,7 +593,11 @@ class ReactAnalyzer:
                 props_analysis["props_spreading"] = True
 
             # Props drilling risk (simple heuristic)
-            props_count = len(props_analysis["destructured_props"])
+            destructured_props = props_analysis.get("destructured_props", [])
+            if isinstance(destructured_props, list):
+                props_count = len(destructured_props)
+            else:
+                props_count = 0
             if props_count > 10:
                 props_analysis["props_drilling_risk"] = "high"
             elif props_count > 5:
@@ -794,7 +795,8 @@ class ReactAnalyzer:
                 summary["modern_patterns_usage"] = "minimal"
 
             # Generate recommendations
-            if summary["total_issues"] > 3:
+            total_issues = summary.get("total_issues", 0)
+            if isinstance(total_issues, int) and total_issues > 3:
                 summary["recommendations"].append(
                     "Address React best practices violations"
                 )
@@ -821,6 +823,8 @@ class ReactAnalyzer:
 
 class TypeScriptAnalyzer:
     """TypeScript analysis with type checking and modern features."""
+
+    config: dict[str, Any]
 
     def __init__(self, config: Optional[dict[str, Any]] = None):
         """Initialize the TypeScript analyzer."""
@@ -896,10 +900,10 @@ class TypeScriptAnalyzer:
             }
             
             # Ensure list fields are properly initialized
-            primitive_types_list = _ensure_list_field(type_analysis, "primitive_types")
-            complex_types_list = _ensure_list_field(type_analysis, "complex_types")
-            union_types_list = _ensure_list_field(type_analysis, "union_types")
-            intersection_types_list = _ensure_list_field(type_analysis, "intersection_types")
+            _ensure_list_field(type_analysis, "primitive_types")
+            _ensure_list_field(type_analysis, "complex_types")
+            _ensure_list_field(type_analysis, "union_types")
+            _ensure_list_field(type_analysis, "intersection_types")
 
             # Primitive types
             primitives = [
@@ -915,7 +919,7 @@ class TypeScriptAnalyzer:
             ]
             for primitive in primitives:
                 if f": {primitive}" in source_code or f"<{primitive}>" in source_code:
-                    _safe_append(primitive_types_list, primitive)
+                    _safe_append(type_analysis["primitive_types"], primitive)
 
             # Type aliases
             type_aliases = re.findall(r"type\s+(\w+)\s*=", source_code)

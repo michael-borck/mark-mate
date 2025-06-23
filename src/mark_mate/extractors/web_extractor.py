@@ -460,14 +460,19 @@ class WebExtractor(BaseExtractor):
             analysis["total_rules"] = len(re.findall(r"{[^}]*}", source_code))
 
             # Basic organization assessment
-            analysis["organization"] = {
-                "has_imports": analysis["imports"] > 0,
-                "has_media_queries": analysis["media_queries"] > 0,
+            imports_count = analysis.get("imports", 0)
+            media_queries_count = analysis.get("media_queries", 0) 
+            comments_count = analysis.get("comments", 0)
+            
+            organization_info = {
+                "has_imports": isinstance(imports_count, int) and imports_count > 0,
+                "has_media_queries": isinstance(media_queries_count, int) and media_queries_count > 0,
                 "uses_modern_features": analysis["has_css_variables"]
                 or analysis["uses_flexbox"]
                 or analysis["uses_grid"],
-                "is_commented": analysis["comments"] > 0,
+                "is_commented": isinstance(comments_count, int) and comments_count > 0,
             }
+            analysis["organization"] = organization_info
 
             return analysis
 
@@ -535,27 +540,35 @@ class WebExtractor(BaseExtractor):
             }
 
             # ES6+ features detection
+            arrow_functions_count = analysis.get("functions", {}).get("arrow_functions", 0)
+            import_statements_count = analysis.get("imports", {}).get("import_statements", 0)
+            
             analysis["modern_features"] = {
-                "arrow_functions": analysis["functions"]["arrow_functions"] > 0,
+                "arrow_functions": isinstance(arrow_functions_count, int) and arrow_functions_count > 0,
                 "destructuring": "{" in source_code
                 and "}" in source_code
                 and "=" in source_code,
                 "template_literals": "`" in source_code,
                 "spread_operator": "..." in source_code,
-                "modules": analysis["imports"]["import_statements"] > 0,
+                "modules": isinstance(import_statements_count, int) and import_statements_count > 0,
             }
 
             # Code quality indicators
+            single_line_comments = analysis.get("comments", {}).get("single_line", 0)
+            multi_line_comments = analysis.get("comments", {}).get("multi_line", 0)
+            try_catch_count = analysis.get("control_structures", {}).get("try_catch", 0)
+            
+            if isinstance(single_line_comments, int) and isinstance(multi_line_comments, int):
+                total_comments = single_line_comments + multi_line_comments
+            else:
+                total_comments = 0
+                
             analysis["quality_indicators"] = {
                 "uses_strict_mode": "'use strict'" in source_code
                 or '"use strict"' in source_code,
-                "has_comments": (
-                    analysis["comments"]["single_line"]
-                    + analysis["comments"]["multi_line"]
-                )
-                > 0,
+                "has_comments": total_comments > 0,
                 "uses_modern_syntax": any(analysis["modern_features"].values()),
-                "error_handling": analysis["control_structures"]["try_catch"] > 0,
+                "error_handling": isinstance(try_catch_count, int) and try_catch_count > 0,
             }
 
             return analysis

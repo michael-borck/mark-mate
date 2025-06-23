@@ -267,7 +267,7 @@ class FileTypeDetector:
         return max(category_counts.items(), key=lambda x: x[1])[0]
 
     def _get_processing_strategy(
-        self, primary_type: str, category_counts: dict[str, int]  # noqa: ARG002
+        self, primary_type: str, _category_counts: dict[str, int]
     ) -> dict[str, Any]:
         """Get recommended processing strategy based on submission type.
         
