@@ -43,30 +43,52 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
-  - User Guide:
-    - Consolidation: user-guide/consolidation.md
-    - Scanning: user-guide/scanning.md
-    - Extraction: user-guide/extraction.md
-    - Grading: user-guide/grading.md
-    - Configuration: user-guide/configuration.md
-  - API Reference:
-    - Core: api/core.md
-    - CLI: api/cli.md
-    - Extractors: api/extractors.md
-    - Analyzers: api/analyzers.md
-  - Development:
-    - Contributing: development/contributing.md
-    - Testing: development/testing.md
-    - Architecture: development/architecture.md
+    - GUI vs CLI: getting-started/gui-vs-cli.md
+  - Workflow:
+    - Overview: workflow/overview.md
+    - Consolidate: workflow/consolidate.md
+    - Scan: workflow/scan.md
+    - Extract: workflow/extract.md
+    - Grade: workflow/grade.md
+  - Configuration:
+    - Grading Configuration: configuration/grading-config.md
+    - System Settings: configuration/system-settings.md
+    - Templates: configuration/templates.md
+  - AI & Prompts:
+    - Overview: ai-prompts/overview.md
+    - Custom Prompts: ai-prompts/custom-prompts.md
+    - LLM Providers: ai-prompts/llm-providers.md
+  - Examples:
+    - Programming: examples/programming.md
+    - WordPress: examples/wordpress.md
+    - International: examples/international.md
+    - Custom Workflows: examples/custom-workflows.md
+  - Technical:
+    - Architecture: technical/architecture.md
+    - GUI Design: technical/gui-design.md
+    - CLI Reference: technical/cli-reference.md
+    - API Documentation: technical/api.md
+  - Advanced:
+    - Extending MarkMate: advanced/extending.md
+    - Custom Extractors: advanced/custom-extractors.md
+    - Integration: advanced/integration.md
+    - Troubleshooting: advanced/troubleshooting.md
 
 markdown_extensions:
   - admonition
   - codehilite
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - toc:
       permalink: true
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js
