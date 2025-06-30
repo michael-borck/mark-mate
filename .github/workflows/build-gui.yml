@@ -113,19 +113,17 @@ jobs:
 
     - name: Download all artifacts
       uses: actions/download-artifact@v4
-      with:
-        path: artifacts
 
     - name: Display structure of downloaded files
-      run: ls -R artifacts
+      run: ls -R
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          artifacts/mark-mate-linux/*.tar.gz
-          artifacts/mark-mate-windows/*.zip
-          artifacts/mark-mate-macos/*.tar.gz
+          mark-mate-linux/*
+          mark-mate-windows/*
+          mark-mate-macos/*
         draft: false
         prerelease: false
         generate_release_notes: true
