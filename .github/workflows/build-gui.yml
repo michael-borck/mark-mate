@@ -60,6 +60,9 @@ jobs:
     - name: Build Flet application
       run: flet build ${{ matrix.platform }} --verbose --project "MarkMate GUI" --description "AI Teaching Assistant for Assignments and Assessment" --product "MarkMate" --org "MarkMate" --copyright "MarkMate Development Team" --build-number ${{ github.run_number }} --build-version "0.2.0"
       working-directory: src/mark_mate/gui
+      env:
+        PYTHONIOENCODING: utf-8
+        PYTHONUTF8: 1
 
     - name: List build output (Debug)
       run: |
