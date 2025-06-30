@@ -78,23 +78,26 @@ jobs:
       working-directory: src/mark_mate/gui
       shell: bash
 
-    - name: Package artifacts (Linux)
+    - name: Package and upload artifacts (Linux)
       if: matrix.platform == 'linux'
       run: |
         cd src/mark_mate/gui/build/linux
-        tar -czf ../../../../../../${{ matrix.artifact_name }}.tar.gz *
+        tar -czf ${{ matrix.artifact_name }}.tar.gz *
+        mv ${{ matrix.artifact_name }}.tar.gz ${{ github.workspace }}/
 
-    - name: Package artifacts (Windows)
+    - name: Package and upload artifacts (Windows)
       if: matrix.platform == 'windows'
       run: |
         cd src/mark_mate/gui/build/windows
-        7z a ../../../../../../${{ matrix.artifact_name }}.zip *
+        7z a ${{ matrix.artifact_name }}.zip *
+        move ${{ matrix.artifact_name }}.zip ${{ github.workspace }}\
 
-    - name: Package artifacts (macOS)
+    - name: Package and upload artifacts (macOS)
       if: matrix.platform == 'macos'
       run: |
         cd src/mark_mate/gui/build/macos
-        tar -czf ../../../../../../${{ matrix.artifact_name }}.tar.gz *
+        tar -czf ${{ matrix.artifact_name }}.tar.gz *
+        mv ${{ matrix.artifact_name }}.tar.gz ${{ github.workspace }}/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
