@@ -58,16 +58,7 @@ jobs:
         pip install -e ".[dev]"
 
     - name: Build Flet application
-      run: |
-        flet build ${{ matrix.platform }} \
-          --verbose \
-          --project "MarkMate GUI" \
-          --description "AI Teaching Assistant for Assignments and Assessment" \
-          --product "MarkMate" \
-          --org "MarkMate" \
-          --copyright "MarkMate Development Team" \
-          --build-number ${{ github.run_number }} \
-          --build-version "0.2.0"
+      run: flet build ${{ matrix.platform }} --verbose --project "MarkMate GUI" --description "AI Teaching Assistant for Assignments and Assessment" --product "MarkMate" --org "MarkMate" --copyright "MarkMate Development Team" --build-number ${{ github.run_number }} --build-version "0.2.0"
       working-directory: src/mark_mate/gui
 
     - name: List build output (Debug)
