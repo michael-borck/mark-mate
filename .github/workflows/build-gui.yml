@@ -78,32 +78,17 @@ jobs:
       working-directory: src/mark_mate/gui
       shell: bash
 
-    - name: Package and upload artifacts (Linux)
-      if: matrix.platform == 'linux'
+    - name: Prepare artifacts for upload
       run: |
-        cd src/mark_mate/gui/build/linux
-        tar -czf ${{ matrix.artifact_name }}.tar.gz *
-        mv ${{ matrix.artifact_name }}.tar.gz ${{ github.workspace }}/
-
-    - name: Package and upload artifacts (Windows)
-      if: matrix.platform == 'windows'
-      run: |
-        cd src/mark_mate/gui/build/windows
-        7z a ${{ matrix.artifact_name }}.zip *
-        move ${{ matrix.artifact_name }}.zip ${{ github.workspace }}\
-
-    - name: Package and upload artifacts (macOS)
-      if: matrix.platform == 'macos'
-      run: |
-        cd src/mark_mate/gui/build/macos
-        tar -czf ${{ matrix.artifact_name }}.tar.gz *
-        mv ${{ matrix.artifact_name }}.tar.gz ${{ github.workspace }}/
+        mkdir -p release-artifacts
+        cp -r src/mark_mate/gui/build/${{ matrix.platform }}/* release-artifacts/
+      shell: bash
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact_name }}
-        path: ${{ matrix.artifact_name }}.*
+        path: release-artifacts/
         if-no-files-found: error
 
   create-release:
@@ -125,9 +110,21 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          mark-mate-linux/*
-          mark-mate-windows/*
-          mark-mate-macos/*
+          mark-mate-linux/**/*
+          mark-mate-windows/**/*
+          mark-mate-macos/**/*
         draft: false
         prerelease: false
         generate_release_notes: true
+        body: |
+          ## MarkMate GUI v${{ github.ref_name }}
+          
+          Cross-platform desktop application for AI-powered assignment grading.
+          
+          ### Downloads:
+          - **Windows**: Download the Windows build and run the executable
+          - **macOS**: Download the macOS build (.app bundle)  
+          - **Linux**: Download the Linux build (native executable)
+          
+          ### Installation:
+          Extract the downloaded archive and run the MarkMate executable for your platform.
