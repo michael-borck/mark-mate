@@ -7,7 +7,6 @@ import asyncio
 import os
 from typing import Optional, Callable
 from ..adapters.cli_adapter import CLIAdapter
-from ..utils.progress import ProgressTracker
 
 
 def create_scan_page(progress_callback: Optional[Callable] = None):

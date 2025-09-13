@@ -12,7 +12,7 @@ A comprehensive system for processing, consolidating, and grading student submis
 ### Installation
 
 ```bash
-pip install mark-mate
+pip install "mark-mate[gui]"
 ```
 
 ### GUI Application (Recommended)

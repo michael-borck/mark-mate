@@ -8,7 +8,7 @@ Get up and running with MarkMate in minutes using either the GUI desktop applica
 
 ```bash
 # Install MarkMate with GUI support
-pip install mark-mate
+pip install "mark-mate[gui]"
 
 # Launch the desktop application
 mark-mate-gui
@@ -17,7 +17,7 @@ mark-mate-gui
 ### Option 2: CLI Only
 ```bash
 # Install MarkMate for command-line use
-pip install mark-mate
+pip install "mark-mate[gui]"
 
 # Verify installation
 mark-mate --help
