@@ -1,4 +1,8 @@
 # MarkMate
+
+<!-- BADGES:START -->
+[![ai](https://img.shields.io/badge/-ai-ff6f00?style=flat-square)](https://github.com/topics/ai) [![assessment](https://img.shields.io/badge/-assessment-blue?style=flat-square)](https://github.com/topics/assessment) [![assignments](https://img.shields.io/badge/-assignments-blue?style=flat-square)](https://github.com/topics/assignments) [![cli-tool](https://img.shields.io/badge/-cli--tool-blue?style=flat-square)](https://github.com/topics/cli-tool) [![github](https://img.shields.io/badge/-github-blue?style=flat-square)](https://github.com/topics/github) [![grading](https://img.shields.io/badge/-grading-blue?style=flat-square)](https://github.com/topics/grading) [![litellm](https://img.shields.io/badge/-litellm-blue?style=flat-square)](https://github.com/topics/litellm) [![machine-learning](https://img.shields.io/badge/-machine--learning-ff6f00?style=flat-square)](https://github.com/topics/machine-learning) [![python](https://img.shields.io/badge/-python-3776ab?style=flat-square)](https://github.com/topics/python) [![wordpress](https://img.shields.io/badge/-wordpress-blue?style=flat-square)](https://github.com/topics/wordpress)
+<!-- BADGES:END -->
 **Your AI Teaching Assistant for Assignments and Assessment**
 
 [![PyPI version](https://badge.fury.io/py/mark-mate.svg)](https://badge.fury.io/py/mark-mate)
